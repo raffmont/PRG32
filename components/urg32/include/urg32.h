@@ -73,10 +73,7 @@ int urg32_sprite_hitbox(int ax, int ay, int aw, int ah, int bx, int by, int bw, 
 void urg32_sprite_draw_8x8(int x, int y, const uint8_t *bits, uint16_t fg, uint16_t bg);
 void urg32_sprite_draw_16x16(int x, int y, const uint16_t *rgb565);
 
-/* Assembly game ABI. Exactly one selected wrapper calls one of these. */
-void game_init(void);
-void game_update(void);
-void game_draw(void);
+/* Assembly demos export per-game init/update/draw symbols selected by main. */
 
 #ifdef __cplusplus
 }

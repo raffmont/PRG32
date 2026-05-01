@@ -2,7 +2,7 @@
 #include "urg32_config.h"
 #include "driver/gpio.h"
 #include "driver/uart.h"
-#include <string.h>
+#include "esp_err.h"
 
 /*
  * URG32 controller layer.
@@ -21,17 +21,31 @@
 
 #if URG32_CONTROLLER_BRIDGE_ENABLE
 static uint32_t bridge_state;
+static uint8_t bridge_packet[4];
+static int bridge_packet_len;
 
-static uint32_t map_bridge_packet(const uint8_t *p, int n) {
-    /*
-     * Simple bridge packet format, easy to implement on any USB-host adapter:
-     *   'U' 'G' lo hi
-     * where lo/hi are the 16-bit URG32 button mask in little-endian order.
-     */
-    if (n >= 4 && p[0] == 'U' && p[1] == 'G') {
-        return (uint32_t)p[2] | ((uint32_t)p[3] << 8);
+static void bridge_feed(uint8_t byte) {
+    /* Packet format: 'U' 'G' lo hi, where lo/hi are the URG32 bitmask. */
+    if (bridge_packet_len == 0) {
+        if (byte == 'U') {
+            bridge_packet[bridge_packet_len++] = byte;
+        }
+        return;
     }
-    return bridge_state;
+    if (bridge_packet_len == 1) {
+        if (byte == 'G') {
+            bridge_packet[bridge_packet_len++] = byte;
+        } else if (byte != 'U') {
+            bridge_packet_len = 0;
+        }
+        return;
+    }
+    bridge_packet[bridge_packet_len++] = byte;
+    if (bridge_packet_len == 4) {
+        bridge_state =
+            (uint32_t)bridge_packet[2] | ((uint32_t)bridge_packet[3] << 8);
+        bridge_packet_len = 0;
+    }
 }
 
 void urg32_controller_bridge_init(void) {
@@ -43,19 +57,25 @@ void urg32_controller_bridge_init(void) {
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
         .source_clk = UART_SCLK_DEFAULT,
     };
-    uart_driver_install(URG32_CONTROLLER_BRIDGE_UART, 256, 0, 0, NULL, 0);
-    uart_param_config(URG32_CONTROLLER_BRIDGE_UART, &cfg);
-    uart_set_pin(URG32_CONTROLLER_BRIDGE_UART,
-                 URG32_PIN_CONTROLLER_TX,
-                 URG32_PIN_CONTROLLER_RX,
-                 UART_PIN_NO_CHANGE,
-                 UART_PIN_NO_CHANGE);
+    esp_err_t err =
+        uart_driver_install(URG32_CONTROLLER_BRIDGE_UART, 256, 0, 0, NULL, 0);
+    if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
+        return;
+    }
+    ESP_ERROR_CHECK(uart_param_config(URG32_CONTROLLER_BRIDGE_UART, &cfg));
+    ESP_ERROR_CHECK(uart_set_pin(URG32_CONTROLLER_BRIDGE_UART,
+                                 URG32_PIN_CONTROLLER_TX,
+                                 URG32_PIN_CONTROLLER_RX,
+                                 UART_PIN_NO_CHANGE,
+                                 UART_PIN_NO_CHANGE));
 }
 
 static uint32_t read_bridge(void) {
     uint8_t b[16];
     int n = uart_read_bytes(URG32_CONTROLLER_BRIDGE_UART, b, sizeof(b), 0);
-    if (n >= 4) bridge_state = map_bridge_packet(b, n);
+    for (int i = 0; i < n; ++i) {
+        bridge_feed(b[i]);
+    }
     return bridge_state;
 }
 #else
@@ -65,12 +85,24 @@ static uint32_t read_bridge(void) { return 0; }
 
 static uint32_t read_gpio_buttons(void) {
     uint32_t v = 0;
-    if (!gpio_get_level(URG32_PIN_BTN_LEFT))  v |= URG32_BTN_LEFT;
-    if (!gpio_get_level(URG32_PIN_BTN_RIGHT)) v |= URG32_BTN_RIGHT;
-    if (!gpio_get_level(URG32_PIN_BTN_UP))    v |= URG32_BTN_UP;
-    if (!gpio_get_level(URG32_PIN_BTN_DOWN))  v |= URG32_BTN_DOWN;
-    if (!gpio_get_level(URG32_PIN_BTN_A))     v |= URG32_BTN_A;
-    if (!gpio_get_level(URG32_PIN_BTN_B))     v |= URG32_BTN_B;
+    if (URG32_PIN_BTN_LEFT >= 0 && !gpio_get_level(URG32_PIN_BTN_LEFT)) {
+        v |= URG32_BTN_LEFT;
+    }
+    if (URG32_PIN_BTN_RIGHT >= 0 && !gpio_get_level(URG32_PIN_BTN_RIGHT)) {
+        v |= URG32_BTN_RIGHT;
+    }
+    if (URG32_PIN_BTN_UP >= 0 && !gpio_get_level(URG32_PIN_BTN_UP)) {
+        v |= URG32_BTN_UP;
+    }
+    if (URG32_PIN_BTN_DOWN >= 0 && !gpio_get_level(URG32_PIN_BTN_DOWN)) {
+        v |= URG32_BTN_DOWN;
+    }
+    if (URG32_PIN_BTN_A >= 0 && !gpio_get_level(URG32_PIN_BTN_A)) {
+        v |= URG32_BTN_A;
+    }
+    if (URG32_PIN_BTN_B >= 0 && !gpio_get_level(URG32_PIN_BTN_B)) {
+        v |= URG32_BTN_B;
+    }
     return v;
 }
 

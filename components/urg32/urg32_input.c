@@ -2,7 +2,14 @@
 #include "urg32_config.h"
 #include "driver/gpio.h"
 
-static void pin_in(int p) { gpio_set_direction(p, GPIO_MODE_INPUT); gpio_set_pull_mode(p, GPIO_PULLUP_ONLY); }
+static void pin_in(int p) {
+    if (p < 0) {
+        return;
+    }
+    gpio_set_direction(p, GPIO_MODE_INPUT);
+    gpio_set_pull_mode(p, GPIO_PULLUP_ONLY);
+}
+
 void urg32_controller_bridge_init(void);
 
 void urg32_input_init(void) {

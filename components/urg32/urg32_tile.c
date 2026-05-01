@@ -9,14 +9,26 @@ static uint8_t g_dirty[URG32_TILE_ROWS][URG32_TILE_COLS];
 void urg32_tile_clear(uint16_t color) {
     memset(g_map, 0, sizeof(g_map));
     memset(g_dirty, 1, sizeof(g_dirty));
+    memset(g_tiles[0].bits, 0, sizeof(g_tiles[0].bits));
     g_tiles[0].fg = color;
     g_tiles[0].bg = color;
 }
 
 void urg32_tile_define(uint8_t id, const uint8_t *bitmap8x8, uint16_t fg, uint16_t bg) {
-    memcpy(g_tiles[id].bits, bitmap8x8, 8);
+    if (bitmap8x8) {
+        memcpy(g_tiles[id].bits, bitmap8x8, 8);
+    } else {
+        memset(g_tiles[id].bits, 0, sizeof(g_tiles[id].bits));
+    }
     g_tiles[id].fg = fg;
     g_tiles[id].bg = bg;
+    for (int ty = 0; ty < URG32_TILE_ROWS; ++ty) {
+        for (int tx = 0; tx < URG32_TILE_COLS; ++tx) {
+            if (g_map[ty][tx] == id) {
+                g_dirty[ty][tx] = 1;
+            }
+        }
+    }
 }
 
 void urg32_tile_put(uint8_t tx, uint8_t ty, uint8_t id) {
