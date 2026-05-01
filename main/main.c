@@ -20,6 +20,8 @@ void urg32_init(void) {
     urg32_display_init();
     urg32_input_init();
     urg32_audio_init();
+    urg32_wifi_scores_init();
+    urg32_scores_api_start();
     urg32_set_mode(URG32_DEFAULT_MODE);
     urg32_console_clear();
 }

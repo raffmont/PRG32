@@ -37,4 +37,17 @@
 #define URG32_PIN_BTN_B      8
 #define URG32_PIN_BUZZER     9
 
+/* Optional USB-controller support via an external USB HID host bridge. */
+#define URG32_CONTROLLER_BRIDGE_ENABLE 1
+#define URG32_CONTROLLER_BRIDGE_UART 1
+#define URG32_CONTROLLER_BRIDGE_BAUD 115200
+#define URG32_PIN_CONTROLLER_TX 18
+#define URG32_PIN_CONTROLLER_RX 19
+
+/* Optional Wi-Fi score REST API. Fill credentials before flashing. */
+#define URG32_WIFI_SCORES_ENABLE 0
+#define URG32_WIFI_SSID "YOUR_WIFI_SSID"
+#define URG32_WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
+#define URG32_SCORE_MAX 16
+
 #endif

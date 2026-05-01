@@ -25,6 +25,7 @@ extern "C" {
 #define URG32_BTN_DOWN  (1u << 3)
 #define URG32_BTN_A     (1u << 4)
 #define URG32_BTN_B     (1u << 5)
+#define URG32_BTN_START (1u << 6)
 
 #define URG32_COLOR_BLACK   0x0000
 #define URG32_COLOR_WHITE   0xffff
@@ -39,7 +40,18 @@ void urg32_init(void);
 void urg32_set_mode(uint32_t mode);
 uint32_t urg32_ticks_ms(void);
 uint32_t urg32_input_read(void);
+uint32_t urg32_controller_read(void);
+const char *urg32_controller_name(uint32_t bit);
 void urg32_audio_beep(uint32_t hz, uint32_t ms);
+
+typedef struct {
+    char game[24];
+    char player[24];
+    uint32_t score;
+} urg32_score_t;
+void urg32_wifi_scores_init(void);
+void urg32_scores_api_start(void);
+int urg32_score_submit(const char *game, const char *player, uint32_t score);
 
 void urg32_console_clear(void);
 void urg32_console_putc(int ch);
