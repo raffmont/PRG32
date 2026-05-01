@@ -1,4 +1,4 @@
-# URG32 - Uniparthenope RISC Gaming platform at 32 bits
+# URG32 - University of Naples "Parthenope" RISC-V Gaming platform at 32 bits
 
 URG32 is an educational retro-gaming platform for teaching RISC-V assembly to first-year Computer Science and Computer Engineering students.
 
