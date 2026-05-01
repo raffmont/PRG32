@@ -8,6 +8,7 @@ These games are external examples. They are not built by the default firmware ap
 - `breakout`
 - `space_invaders`
 - `pacman`
+- `asteroids`
 
 Each game has:
 

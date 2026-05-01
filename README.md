@@ -42,6 +42,7 @@ The included assembly examples live in `examples/games`:
 - Breakout
 - Space Invaders
 - Pac-Man inspired maze game
+- Asteroids-inspired ship demo
 
 Each game has ASCII and graphics versions and is commented line-by-line for classroom use.
 
