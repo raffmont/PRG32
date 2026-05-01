@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "PRG32: ESP-IDF debug",
+      "type": "espidf",
+      "request": "launch",
+      "initGdbCommands": [
+        "set disassemble-next-line on",
+        "set print pretty on"
+      ]
+    }
+  ]
+}

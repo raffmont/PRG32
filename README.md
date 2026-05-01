@@ -1,50 +1,70 @@
-# PRG32 - University of Naples Parthenope RISC-V Gaming platform at 32 bit
+# PRG32 - University of Naples Parthenope 32-bit RISC-V Gaming Platform
 
 PRG32 is an educational retro-gaming platform for teaching RISC-V assembly to first-year Computer Science and Computer Engineering students.
 
-The project targets the ESP32-C6 RISC-V microcontroller and the ILI9341 2.8-inch SPI TFT display. It provides a C framework that hides hardware setup while exposing a small, stable ABI callable from RISC-V assembly.
+The firmware targets the ESP32-C6 RISC-V microcontroller and an ILI9341 320x240 SPI TFT display. The C framework hides hardware setup while exposing a small ABI that assembly programs can call directly.
 
-## Modes
+## Repository Layout
 
-1. **Headless UART terminal**: ASCII games run over serial.
-2. **LCD-only classroom mode**: on-screen text console and 320x200 graphics viewport.
-3. **UART + LCD mirrored debug mode**: serial output is mirrored to the display.
+- `components/prg32`: reusable PRG32 framework component.
+- `main`: minimal framework smoke-test app.
+- `examples/games`: external RISC-V assembly game examples.
+- `docs`: API notes, tutorials, labs, and debugging assignments.
+- `tools/prg32_score_server`: optional Flask + SQLite classroom scoreboard.
+- `.vscode` and `PRG32.code-workspace`: student-ready VS Code setup.
+- `hardware`: breadboard notes, USB-controller bridge notes, PCB/enclosure starters.
 
-## Included demos
+## Quick Start
 
-Each demo has ASCII and graphics versions:
+Open `PRG32.code-workspace` in VS Code, install the recommended extensions, then use the provided tasks:
+
+```bash
+idf.py set-target esp32c6
+idf.py build
+idf.py flash monitor
+```
+
+The default app prints `PRG32 Hello World` through the framework console. Example games are intentionally external to the firmware app so students can add one game at a time during labs.
+
+## Framework Modes
+
+1. UART terminal only.
+2. LCD-only classroom mode.
+3. UART + LCD mirrored debug mode.
+
+Configure pins, display mode, controller bridge settings, and Wi-Fi score support in `main/prg32_config.h`.
+
+## Example Games
+
+The included assembly examples live in `examples/games`:
 
 - Pong
 - Breakout
 - Space Invaders
 - Pac-Man inspired maze game
 
-## Hardware target
+Each game has ASCII and graphics versions and is commented line-by-line for classroom use.
 
-- ESP32-C6 development board
-- ILI9341 320x240 SPI TFT display
-- GPIO buttons or joystick
-- Passive buzzer driven by PWM
+## Course Material
 
-## Build
+Start with `docs/tutorial.md`, then use the labs in `docs/labs`:
 
-```bash
-idf.py set-target esp32c6
-idf.py menuconfig
-idf.py build
-idf.py flash monitor
+- Step-by-step build, input, graphics, sound, scores, and controller labs.
+- Register tracing and memory inspection exercises.
+- "Break the game and fix it" assignments.
+
+## APIs
+
+- Score API: `docs/score_api.md`
+- External controllers: `docs/external_controllers.md`
+- Framework manual: `docs/framework_manual.md`
+
+## Hardware
+
+PRG32 supports GPIO buttons and an optional USB-HID bridge:
+
+```text
+USB controller -> USB host bridge -> UART packet -> ESP32-C6 -> PRG32 input bitmask
 ```
 
-Select the game and video mode in `main/urg32_config.h`.
-
-## Status
-
-This kit is designed as a complete educational scaffold. Hardware pin assignments may need adjustment for the specific ESP32-C6 board and ILI9341 module used in class.
-
-## External controllers and Wi-Fi scores
-
-PRG32 now includes optional support for external standard USB game controllers through a USB-HID-host bridge and a Wi-Fi REST API for game/player/score records.
-
-Important hardware note: ESP32-C6 is kept as the main RISC-V teaching microcontroller, but it does not directly act as a general USB HID host for arbitrary wired controllers. The reference design, therefore, uses a small bridge board that translates USB HID gamepad state into a compact UART packet consumed by the C6. See `docs/usb_game_controllers.md` and `hardware/usb_gamepad_bridge/README.md`.
-
-Score APIs are documented in `docs/wifi_score_api.md`.
+See `hardware/README.md` and `hardware/prg32_v2/README.md`.

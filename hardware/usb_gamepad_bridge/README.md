@@ -1,11 +1,11 @@
 # USB Gamepad Bridge Hardware
 
-Because ESP32-C6 is not a direct USB HID host for standard USB gamepads, URG32 uses an optional bridge board.
+Because ESP32-C6 is not a direct USB HID host for standard USB gamepads, PRG32 uses an optional bridge board.
 
 ## Reference bridge wiring
 
 ```text
-USB gamepad -> USB-host bridge -> UART -> ESP32-C6 URG32 board
+USB gamepad -> USB-host bridge -> UART -> ESP32-C6 PRG32 board
 ```
 
 | Bridge pin | ESP32-C6 pin | Notes |
@@ -21,7 +21,7 @@ Use a powered USB-host bridge when using controllers with LEDs, rumble, or high 
 
 ```c
 while (1) {
-    uint16_t mask = read_usb_hid_gamepad_and_map_to_urg32();
+    uint16_t mask = read_usb_hid_gamepad_and_map_to_prg32();
     uart_write('U');
     uart_write('G');
     uart_write(mask & 0xff);

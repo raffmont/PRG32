@@ -1,0 +1,48 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "PRG32: set target esp32c6",
+      "type": "shell",
+      "command": "idf.py",
+      "args": ["set-target", "esp32c6"],
+      "problemMatcher": []
+    },
+    {
+      "label": "PRG32: menuconfig",
+      "type": "shell",
+      "command": "idf.py",
+      "args": ["menuconfig"],
+      "problemMatcher": []
+    },
+    {
+      "label": "PRG32: build",
+      "type": "shell",
+      "command": "idf.py",
+      "args": ["build"],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "PRG32: flash monitor",
+      "type": "shell",
+      "command": "idf.py",
+      "args": ["flash", "monitor"],
+      "problemMatcher": []
+    },
+    {
+      "label": "PRG32: clean",
+      "type": "shell",
+      "command": "idf.py",
+      "args": ["fullclean"],
+      "problemMatcher": []
+    },
+    {
+      "label": "PRG32: score server",
+      "type": "shell",
+      "command": "python3",
+      "args": ["tools/prg32_score_server/app.py"],
+      "problemMatcher": []
+    }
+  ]
+}

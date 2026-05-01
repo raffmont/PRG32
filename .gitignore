@@ -67,3 +67,9 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# Local Python tooling
+.venv/
+__pycache__/
+tools/prg32_score_server/*.db
+tools/prg32_score_server/*.db-*

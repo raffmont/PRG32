@@ -1,6 +1,6 @@
-# URG32 Framework Manual
+# PRG32 Framework Manual
 
-URG32 lets students write game logic in RISC-V assembly while a small C framework provides hardware access.
+PRG32 lets students write game logic in RISC-V assembly while a small C framework provides hardware access.
 
 ## Assembly ABI
 
@@ -8,9 +8,9 @@ Arguments use the standard RISC-V calling convention: `a0` to `a7` carry argumen
 
 ## Console modes
 
-- `URG32_MODE_UART_ONLY`: serial terminal only.
-- `URG32_MODE_LCD_ONLY`: text appears on the ILI9341 display.
-- `URG32_MODE_UART_LCD_MIRROR`: debug text is sent both to serial and LCD.
+- `PRG32_MODE_UART_ONLY`: serial terminal only.
+- `PRG32_MODE_LCD_ONLY`: text appears on the ILI9341 display.
+- `PRG32_MODE_UART_LCD_MIRROR`: debug text is sent both to serial and LCD.
 
 ## Graphics model
 
@@ -26,4 +26,4 @@ The sprite layer provides simple bitmap drawing and axis-aligned bounding-box co
 
 ## Audio
 
-`urg32_audio_beep(hz, ms)` uses PWM to drive a passive buzzer.
+`prg32_audio_beep(hz, ms)` uses PWM to drive a passive buzzer.

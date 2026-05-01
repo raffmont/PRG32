@@ -1,4 +1,4 @@
-# URG32 Reference Hardware
+# PRG32 Reference Hardware
 
 ## Prototype breadboard parts
 
@@ -7,6 +7,22 @@
 - 6 tactile buttons
 - Passive buzzer
 - Jumper wires and breadboard
+
+## USB controller bridge
+
+ESP32-C6 remains the main RISC-V teaching microcontroller. It does not directly host arbitrary wired USB HID controllers, so PRG32 uses a bridge:
+
+```text
+USB controller -> USB host bridge -> UART -> ESP32-C6
+```
+
+The bridge sends the packet documented in `docs/external_controllers.md`:
+
+```text
+'U' 'G' <lo> <hi>
+```
+
+Suitable bridge boards include ESP32-S3, RP2040 with USB host support, CH559/CH554, or a PC-side serial helper during labs.
 
 ## Reference wiring
 
@@ -29,4 +45,4 @@
 | GPIO8 | B button to GND |
 | GPIO9 | Passive buzzer |
 
-The `kicad` directory contains starter placeholders for a KiCad production board. The `case` directory contains a simple OpenSCAD enclosure starter.
+The `kicad` directory contains starter placeholders for a KiCad production board. The `case` directory contains a simple OpenSCAD enclosure starter. The `prg32_v2` directory contains the next hardware revision scaffold.

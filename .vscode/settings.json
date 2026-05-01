@@ -1,0 +1,15 @@
+{
+  "idf.adapterTargetName": "esp32c6",
+  "idf.openOcdConfigs": [
+    "board/esp32c6-builtin.cfg"
+  ],
+  "files.associations": {
+    "*.S": "riscv",
+    "*.h": "c"
+  },
+  "C_Cpp.default.includePath": [
+    "${workspaceFolder}/components/prg32/include",
+    "${workspaceFolder}/main"
+  ],
+  "C_Cpp.default.compilerPath": "${config:idf.toolsPath}/tools/riscv32-esp-elf/bin/riscv32-esp-elf-gcc"
+}

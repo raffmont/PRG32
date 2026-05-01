@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "espressif.esp-idf-extension",
+    "ms-vscode.cpptools",
+    "ms-python.python",
+    "xaver.clang-format"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "idf.adapterTargetName": "esp32c6",
+    "idf.portWin": "COM3",
+    "idf.portMac": "/dev/cu.usbmodem*",
+    "idf.portLinux": "/dev/ttyACM0",
+    "files.associations": {
+      "*.S": "riscv",
+      "*.h": "c"
+    },
+    "C_Cpp.default.includePath": [
+      "${workspaceFolder}/components/prg32/include",
+      "${workspaceFolder}/main"
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "espressif.esp-idf-extension",
+      "ms-vscode.cpptools",
+      "ms-python.python",
+      "xaver.clang-format"
+    ]
+  }
+}
