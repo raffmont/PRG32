@@ -1,8 +1,8 @@
-# URG32 - Uniparthenope RISC Gaming platform at 32 bits
+# PRG32 - University of Naples Parthenope RISC-V Gaming platform at 32 bits
 
 URG32 is an educational retro-gaming platform for teaching RISC-V assembly to first-year Computer Science and Computer Engineering students.
 
-The project targets the ESP32-C6 RISC-V microcontroller and the ILI9341 2.8 inch SPI TFT display. It provides a C framework that hides hardware setup while exposing a small, stable ABI callable from RISC-V assembly.
+The project targets the ESP32-C6 RISC-V microcontroller and the ILI9341 2.8-inch SPI TFT display. It provides a C framework that hides hardware setup while exposing a small, stable ABI callable from RISC-V assembly.
 
 ## Modes
 
