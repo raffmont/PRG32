@@ -15,6 +15,7 @@ void prg32_controller_bridge_init(void);
 void prg32_input_init(void) {
     pin_in(PRG32_PIN_BTN_LEFT); pin_in(PRG32_PIN_BTN_RIGHT); pin_in(PRG32_PIN_BTN_UP);
     pin_in(PRG32_PIN_BTN_DOWN); pin_in(PRG32_PIN_BTN_A); pin_in(PRG32_PIN_BTN_B);
+    pin_in(PRG32_PIN_BTN_START);
     prg32_controller_bridge_init();
 }
 

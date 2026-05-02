@@ -103,6 +103,8 @@
         "-B",
         "build-qemu",
         "-D",
+        "SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu",
+        "-D",
         "IDF_TARGET=esp32c3",
         "gdb"
       ],

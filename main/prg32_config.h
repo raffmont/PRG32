@@ -15,14 +15,16 @@
 #define PRG32_GAME_ASTEROIDS_ASCII     9
 #define PRG32_GAME_ASTEROIDS_GRAPHICS  10
 
-#define PRG32_SELECTED_GAME PRG32_GAME_PONG_GRAPHICS
-
 /* Runtime console mode. */
 #define PRG32_MODE_UART_ONLY       0
 #define PRG32_MODE_LCD_ONLY        1
 #define PRG32_MODE_UART_LCD_MIRROR 2
 
 #define PRG32_DEFAULT_MODE PRG32_MODE_UART_LCD_MIRROR
+
+#ifndef PRG32_DEBUG
+#define PRG32_DEBUG 0
+#endif
 
 #if CONFIG_PRG32_DISPLAY_QEMU_RGB
 /* QEMU screen builds do not touch physical board pins. */
@@ -40,6 +42,7 @@
 #define PRG32_PIN_BTN_DOWN   -1
 #define PRG32_PIN_BTN_A      -1
 #define PRG32_PIN_BTN_B      -1
+#define PRG32_PIN_BTN_START  -1
 #define PRG32_PIN_BUZZER     -1
 
 #define PRG32_CONTROLLER_BRIDGE_ENABLE 0
@@ -65,6 +68,8 @@
 #define PRG32_PIN_BTN_DOWN   3
 #define PRG32_PIN_BTN_A      4
 #define PRG32_PIN_BTN_B      8
+/* Optional START button pin; set to -1 when not wired. */
+#define PRG32_PIN_BTN_START  -1
 #define PRG32_PIN_BUZZER     9
 
 /* Optional USB-controller support via an external USB HID host bridge. */

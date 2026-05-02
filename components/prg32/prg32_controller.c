@@ -103,6 +103,9 @@ static uint32_t read_gpio_buttons(void) {
     if (PRG32_PIN_BTN_B >= 0 && !gpio_get_level(PRG32_PIN_BTN_B)) {
         v |= PRG32_BTN_B;
     }
+    if (PRG32_PIN_BTN_START >= 0 && !gpio_get_level(PRG32_PIN_BTN_START)) {
+        v |= PRG32_BTN_START;
+    }
     return v;
 }
 

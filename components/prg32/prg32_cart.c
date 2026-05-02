@@ -1,6 +1,8 @@
 #include "prg32.h"
+#include "prg32_config.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,6 +39,23 @@ static void set_error(const char *msg) {
         msg = "unknown cartridge error";
     }
     snprintf(g_error, sizeof(g_error), "%s", msg);
+#if PRG32_DEBUG
+    ESP_LOGW(TAG, "%s", g_error);
+#endif
+}
+
+static void set_errorf(const char *fmt, ...) {
+    if (!fmt) {
+        set_error("unknown cartridge error");
+        return;
+    }
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(g_error, sizeof(g_error), fmt, ap);
+    va_end(ap);
+#if PRG32_DEBUG
+    ESP_LOGW(TAG, "%s", g_error);
+#endif
 }
 
 static uint32_t crc32_update(uint32_t crc, const uint8_t *data, size_t len) {
@@ -90,7 +109,9 @@ static int validate_header(const prg32_cart_header_t *h,
         return -1;
     }
     if (h->abi_major != PRG32_CART_ABI_MAJOR) {
-        set_error("unsupported cartridge ABI");
+        set_errorf("unsupported cartridge ABI major=%u expected=%u",
+                   (unsigned)h->abi_major,
+                   (unsigned)PRG32_CART_ABI_MAJOR);
         return -1;
     }
     if (h->header_size < PRG32_CART_HEADER_MIN_SIZE ||
@@ -104,23 +125,40 @@ static int validate_header(const prg32_cart_header_t *h,
     }
     if (h->code_size == 0 || h->code_size > h->mem_size ||
         h->mem_size > PRG32_CART_RAM_SIZE) {
-        set_error("invalid cartridge memory size");
+        set_errorf("invalid cartridge size code=%lu mem=%lu ram=%lu",
+                   (unsigned long)h->code_size,
+                   (unsigned long)h->mem_size,
+                   (unsigned long)PRG32_CART_RAM_SIZE);
         return -1;
     }
     if ((size_t)h->header_size + h->code_size > image_size) {
-        set_error("truncated cartridge payload");
+        set_errorf("truncated cartridge payload image=%lu needed=%lu",
+                   (unsigned long)image_size,
+                   (unsigned long)((size_t)h->header_size + h->code_size));
         return -1;
     }
-    if (h->init_offset >= h->mem_size ||
-        h->update_offset >= h->mem_size ||
-        h->draw_offset >= h->mem_size) {
-        set_error("cartridge entry point is out of range");
+    if (h->init_offset >= h->code_size ||
+        h->update_offset >= h->code_size ||
+        h->draw_offset >= h->code_size) {
+        set_errorf("entry offset outside code init=%lu update=%lu draw=%lu code=%lu",
+                   (unsigned long)h->init_offset,
+                   (unsigned long)h->update_offset,
+                   (unsigned long)h->draw_offset,
+                   (unsigned long)h->code_size);
+        return -1;
+    }
+    if ((h->init_offset & 1u) != 0u ||
+        (h->update_offset & 1u) != 0u ||
+        (h->draw_offset & 1u) != 0u) {
+        set_error("entry offsets must be 2-byte aligned");
         return -1;
     }
     *payload = ((const uint8_t *)h) + h->header_size;
     uint32_t crc = crc32_update(0, *payload, h->code_size);
     if (crc != h->payload_crc32) {
-        set_error("cartridge payload CRC mismatch");
+        set_errorf("cartridge payload CRC mismatch expected=0x%08lx got=0x%08lx",
+                   (unsigned long)h->payload_crc32,
+                   (unsigned long)crc);
         return -1;
     }
     return 0;
@@ -307,6 +345,14 @@ static int call_entry(prg32_cart_entry_t entry) {
         return -1;
     }
     if (!g_loaded) {
+        unlock_cart();
+        return -1;
+    }
+    uintptr_t base = (uintptr_t)prg32_cart_exec;
+    uintptr_t addr = (uintptr_t)entry;
+    uintptr_t end = base + g_header.code_size;
+    if (addr < base || addr >= end || ((addr - base) & 1u) != 0u) {
+        set_error("entry pointer is outside cartridge code range");
         unlock_cart();
         return -1;
     }

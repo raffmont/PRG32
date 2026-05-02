@@ -22,3 +22,12 @@ For a desktop graphics test, run:
 ```bash
 idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
 ```
+
+Optional debug overlay helper:
+
+```c
+prg32_debug_overlay_draw(1, x, y, input_mask, frame_counter);
+```
+
+This draws `x/y`, input mask, frame, and tick information at the top of the
+game viewport for quick classroom debugging.

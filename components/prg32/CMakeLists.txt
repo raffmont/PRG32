@@ -22,16 +22,21 @@ endif()
 
 idf_component_register(
     SRCS
+        "prg32_abi_exports.c"
         "prg32_audio.c"
         "prg32_cart.c"
         "prg32_console.c"
         "prg32_controller.c"
+        "prg32_debug_overlay.c"
+        "prg32_diag.c"
+        "prg32_http_games.c"
+        "prg32_http_scores.c"
         ${PRG32_DISPLAY_SRC}
         "prg32_input.c"
         "prg32_sprite.c"
         "prg32_system.c"
         "prg32_tile.c"
-        "prg32_wifi_scores.c"
+        "prg32_wifi.c"
     INCLUDE_DIRS "include"
     PRIV_INCLUDE_DIRS "../../main"
     PRIV_REQUIRES ${PRG32_PRIV_REQUIRES}

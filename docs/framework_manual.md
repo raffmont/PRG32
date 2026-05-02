@@ -18,6 +18,9 @@ The physical display is 320x240, but the game viewport is 320x200. The extra ver
 
 The QEMU renderer exposes the same 320x200 PRG32 viewport through Espressif's virtual RGB panel. Student assembly code does not change; only the selected display backend changes.
 
+For classroom debugging, optional helper `prg32_debug_overlay_draw` can print
+`x`, `y`, input mask, frame, and tick info on the top scanline.
+
 Display backend selection:
 
 - `CONFIG_PRG32_DISPLAY_ILI9341`: physical ILI9341 SPI TFT, default.

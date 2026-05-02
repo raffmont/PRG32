@@ -12,3 +12,5 @@ Controls:
 - A: add to the score counter and play a short beep.
 
 The source is intentionally verbose and uses only simple PRG32 framework calls so students can trace registers, memory variables, and C helper calls in the debugger.
+
+In QEMU, input may be static unless a UART bridge is enabled.

@@ -5,10 +5,13 @@
  */
 .option norelax
 .section .data
-invaders_graphics_x:      .word 20          /* Object x coordinate in pixels or text columns. */
-invaders_graphics_y:      .word 20          /* Object y coordinate in pixels or text rows. */
-invaders_graphics_dx:     .word 2           /* Horizontal velocity. */
-invaders_graphics_dy:     .word 1           /* Vertical velocity. */
+invaders_graphics_x:      .word 40          /* Invader formation x. */
+invaders_graphics_y:      .word 20          /* Invader formation y. */
+invaders_graphics_dx:     .word 2           /* Formation horizontal velocity. */
+invaders_graphics_cannon_x:.word 120        /* Player cannon x coordinate. */
+invaders_graphics_cannon_dx:.word 2         /* Cannon auto patrol speed. */
+invaders_graphics_shot_x: .word 134         /* Shot x coordinate. */
+invaders_graphics_shot_y: .word 170         /* Shot y coordinate. */
 invaders_graphics_score:  .word 0           /* Simple score/counter. */
 
 .section .rodata
@@ -24,9 +27,9 @@ invaders_graphics_init:
     addi sp, sp, -16              /* Build a tiny stack frame before calling C. */
     sw ra, 12(sp)                 /* Save return address because call overwrites ra. */
     call prg32_console_clear      /* Clear UART/LCD text console. */
-    la a0, invaders_graphics_title        /* Put address of title string into argument a0. */
+    la a0, invaders_graphics_title    /* Put address of title string into argument a0. */
     call prg32_console_write      /* Print title through framework console. */
-    la a0, invaders_graphics_msg          /* Load second message pointer into a0. */
+    la a0, invaders_graphics_msg      /* Load second message pointer into a0. */
     call prg32_console_write      /* Print explanatory message. */
     li a0, 120                    /* Choose a short beep frequency/duration argument. */
     li a1, 30                     /* 30 milliseconds: audible but not annoying. */
@@ -36,20 +39,72 @@ invaders_graphics_init:
     ret                           /* Return to the C game loop. */
 
 invaders_graphics_update:
-    addi sp, sp, -16              /* Save caller state before using C functions. */
+    addi sp, sp, -16              /* Save caller state before update work. */
     sw ra, 12(sp)                 /* Preserve return address. */
-    call prg32_input_read         /* Read buttons; result appears in a0. */
-    mv t0, a0                     /* Copy button bitmask into temporary register t0. */
-    la t1, invaders_graphics_x            /* Load address of x variable. */
-    lw t2, 0(t1)                  /* Load current x value. */
-    andi t3, t0, 1                /* Test LEFT button bit. */
-    beqz t3, 1f                   /* If not pressed, skip left movement. */
-    addi t2, t2, -3               /* Move object left by 3 pixels/cells. */
-1:  andi t3, t0, 2                /* Test RIGHT button bit. */
-    beqz t3, 2f                   /* If not pressed, skip right movement. */
-    addi t2, t2, 3                /* Move object right by 3 pixels/cells. */
-2:  sw t2, 0(t1)                  /* Store new x coordinate. */
-    la t1, invaders_graphics_score        /* Load score variable address. */
+
+    /* Invader formation moves side-to-side and steps down on wall bounce. */
+    la t1, invaders_graphics_x
+    lw t2, 0(t1)
+    la t3, invaders_graphics_dx
+    lw t4, 0(t3)
+    add t2, t2, t4
+    li t5, 8
+    blt t2, t5, 1f
+    li t5, 260                     /* 3 invaders width envelope. */
+    ble t2, t5, 2f
+    li t2, 260
+    neg t4, t4
+    la t6, invaders_graphics_y
+    lw t0, 0(t6)
+    addi t0, t0, 8                 /* Descend one row on bounce. */
+    li t5, 96
+    ble t0, t5, 5f
+    li t0, 20
+5:  sw t0, 0(t6)
+    j 2f
+1:  li t2, 8
+    neg t4, t4
+    la t6, invaders_graphics_y
+    lw t0, 0(t6)
+    addi t0, t0, 8
+    li t5, 96
+    ble t0, t5, 6f
+    li t0, 20
+6:  sw t0, 0(t6)
+2:  sw t2, 0(t1)
+    sw t4, 0(t3)
+
+    /* Player cannon auto patrol along bottom. */
+    la t1, invaders_graphics_cannon_x
+    lw t2, 0(t1)
+    la t3, invaders_graphics_cannon_dx
+    lw t4, 0(t3)
+    add t2, t2, t4
+    bltz t2, 3f
+    li t5, 292
+    ble t2, t5, 4f
+    li t2, 292
+    neg t4, t4
+    j 4f
+3:  li t2, 0
+    neg t4, t4
+4:  sw t2, 0(t1)
+    sw t4, 0(t3)
+
+    /* Shot climbs upward and respawns from cannon when it leaves screen. */
+    la t1, invaders_graphics_shot_y
+    lw t2, 0(t1)
+    addi t2, t2, -4
+    bgez t2, 7f
+    li t2, 170
+    la t3, invaders_graphics_shot_x
+    la t4, invaders_graphics_cannon_x
+    lw t5, 0(t4)
+    addi t5, t5, 14
+    sw t5, 0(t3)
+7:  sw t2, 0(t1)
+
+    la t1, invaders_graphics_score    /* Load score variable address. */
     lw t2, 0(t1)                  /* Load current score/counter. */
     addi t2, t2, 1                /* Increment counter once per frame. */
     sw t2, 0(t1)                  /* Store updated counter. */
@@ -62,13 +117,57 @@ invaders_graphics_draw:
     sw ra, 12(sp)                 /* Save return address. */
     li a0, 0                      /* RGB565 black background. */
     call prg32_gfx_clear          /* Clear 320x200 retro graphics viewport. */
-    la t0, invaders_graphics_x            /* Load address of x coordinate. */
-    lw a0, 0(t0)                  /* a0 = x position. */
-    li a1, 90                     /* a1 = y position. */
-    li a2, 32                     /* a2 = rectangle width. */
-    li a3, 12                     /* a3 = rectangle height. */
-    li a4, 65535                  /* a4 = white color in RGB565. */
-    call prg32_gfx_rect           /* Draw one moving arcade object. */
+
+    /* Player cannon near the bottom, follows x to keep visible motion. */
+    la t0, invaders_graphics_cannon_x
+    lw a0, 0(t0)
+    li a1, 186
+    li a2, 28
+    li a3, 8
+    li a4, 65535                  /* White cannon. */
+    call prg32_gfx_rect
+
+    /* Moving invader formation (three aliens) driven by x/y. */
+    la t0, invaders_graphics_x
+    lw a0, 0(t0)
+    la t0, invaders_graphics_y
+    lw a1, 0(t0)
+    li a2, 14
+    li a3, 10
+    li a4, 2016                   /* Green invader #1. */
+    call prg32_gfx_rect
+
+    la t0, invaders_graphics_x
+    lw a0, 0(t0)
+    addi a0, a0, 26
+    la t0, invaders_graphics_y
+    lw a1, 0(t0)
+    addi a1, a1, 4
+    li a2, 14
+    li a3, 10
+    li a4, 2016                   /* Green invader #2. */
+    call prg32_gfx_rect
+
+    la t0, invaders_graphics_x
+    lw a0, 0(t0)
+    addi a0, a0, 52
+    la t0, invaders_graphics_y
+    lw a1, 0(t0)
+    li a2, 14
+    li a3, 10
+    li a4, 2016                   /* Green invader #3. */
+    call prg32_gfx_rect
+
+    /* Player shot (white laser). */
+    la t0, invaders_graphics_shot_x
+    lw a0, 0(t0)
+    la t0, invaders_graphics_shot_y
+    lw a1, 0(t0)
+    li a2, 2
+    li a3, 8
+    li a4, 65535
+    call prg32_gfx_rect
+
     lw ra, 12(sp)                 /* Restore return address after drawing. */
     addi sp, sp, 16               /* Free stack frame. */
     ret                           /* Return to main loop. */

@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use PRG32 in coursework, reports, or teaching material, please cite it."
+title: "PRG32"
+type: software
+authors:
+  - family-names: "Montella"
+    given-names: "Raffaele"
+    affiliation: "UniParthenope"
+  - family-names: "Cafiero"
+    given-names: "Ivan"
+    affiliation: "UniParthenope"
+keywords:
+  - embedded-systems
+  - riscv
+  - esp32
+  - education
+  - assembly
+abstract: "Educational ESP32-C6 / RISC-V assembly gaming platform with PRG32 runtime and QEMU workflow."
+license: "MIT"

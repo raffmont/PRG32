@@ -57,10 +57,10 @@ See `docs/cartridges.md`.
 
 Example games live outside the default app in `examples/games`. During labs, add one source file to `main/CMakeLists.txt` and call its exported symbols from `main/main.c`.
 
-Example game builds may still use `main/prg32_config.h` for display mode, pins, Wi-Fi credentials, and course-specific selection macros:
+Example game builds may still use `main/prg32_config.h` for display mode, pins,
+and Wi-Fi credentials:
 
 ```c
-#define PRG32_SELECTED_GAME PRG32_GAME_PONG_GRAPHICS
 #define PRG32_DEFAULT_MODE PRG32_MODE_UART_LCD_MIRROR
 ```
 

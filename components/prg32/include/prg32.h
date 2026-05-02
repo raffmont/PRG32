@@ -41,6 +41,9 @@ extern "C" {
 #define PRG32_CART_ABI_MINOR 0
 #define PRG32_CART_RAM_SIZE (32u * 1024u)
 #define PRG32_CART_NAME_LEN 32
+#ifndef PRG32_FIRMWARE_VERSION
+#define PRG32_FIRMWARE_VERSION "dev"
+#endif
 
 typedef struct __attribute__((packed)) {
     char magic[4];
@@ -74,6 +77,10 @@ uint32_t prg32_ticks_ms(void);
 uint32_t prg32_input_read(void);
 uint32_t prg32_controller_read(void);
 const char *prg32_controller_name(uint32_t bit);
+void prg32_diag_set_input_state(uint32_t input_state);
+void prg32_diag_increment_frame(void);
+uint32_t prg32_diag_input_state(void);
+uint32_t prg32_diag_frame_count(void);
 void prg32_audio_beep(uint32_t hz, uint32_t ms);
 
 typedef struct {
@@ -113,6 +120,11 @@ void prg32_gfx_present(void);
 void prg32_gfx_pixel(int x, int y, uint16_t color);
 void prg32_gfx_rect(int x, int y, int w, int h, uint16_t color);
 void prg32_gfx_text8(int x, int y, const char *s, uint16_t fg, uint16_t bg);
+void prg32_debug_overlay_draw(int enabled,
+                              int x,
+                              int y,
+                              uint32_t input_mask,
+                              uint32_t frame);
 
 void prg32_tile_clear(uint16_t color);
 void prg32_tile_define(uint8_t id, const uint8_t *bitmap8x8, uint16_t fg, uint16_t bg);
