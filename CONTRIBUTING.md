@@ -1,5 +1,28 @@
 # Contributing to PRG32
 
+PRG32 is maintained as an educational and academic-style project. Contributions
+should be reproducible, clearly documented, and suitable for teaching or coursework
+review.
+
+## Academic Contribution Format
+
+Each substantial contribution should include:
+
+1. Context:
+   - educational or technical objective
+   - impacted module(s)
+2. Method:
+   - implementation strategy
+   - constraints/tradeoffs
+3. Validation:
+   - commands used
+   - observed outcomes
+4. Reflection:
+   - limitations
+   - possible future improvements
+
+Use this format in PR descriptions when possible.
+
 ## Fork And Branch
 
 1. Fork this repository on GitHub.
@@ -37,6 +60,7 @@ idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu build
 3. Link related issues/lab tasks if present.
 4. Include screenshots for UI/graphics-visible changes.
 5. Request review only after local checks pass.
+6. For course deliverables, include course/university context in the PR body.
 
 ## Coding Guidelines
 
@@ -57,3 +81,16 @@ idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu build
 - Default firmware app should stay minimal unless a PR explicitly changes product behavior.
 - Example games in `examples/games` should remain external to default app builds.
 - Cartridge/QEMU workflows must remain compatible with docs and tools.
+
+## Contributor Attribution
+
+- Keep contributor names consistent across project metadata files.
+- If you add a contributor, update:
+  - `CONTRIBUTORS.md`
+  - `README.md` contributor section
+  - `CITATION.cff` when authorship metadata changes
+
+Current named contributor:
+
+- Raffaele Montella - UniParthenope - academic supervisor / project lead
+- Ivan Cafiero - UniParthenope - Computer Science student

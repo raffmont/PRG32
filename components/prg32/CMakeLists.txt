@@ -22,6 +22,7 @@ endif()
 
 idf_component_register(
     SRCS
+        "prg32_abi_exports.c"
         "prg32_audio.c"
         "prg32_cart.c"
         "prg32_console.c"

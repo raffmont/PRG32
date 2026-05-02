@@ -2,6 +2,14 @@
 
 PRG32 is an educational runtime for RISC-V assembly games.
 
+## Academic Profile
+
+- Project domain: Embedded Systems and Computer Architecture Education
+- Platform focus: ESP32-C6 (hardware) and ESP32-C3 QEMU path (desktop emulation)
+- Course style: first-year/early undergraduate assembly and systems labs
+- Academic supervisor / project lead: Raffaele Montella - UniParthenope
+- Contributor (student): Ivan Cafiero - UniParthenope - Computer Science student
+
 ## 🚀 Quick Start (macOS)
 
 ```bash
@@ -147,3 +155,24 @@ See `docs/images/README.md` for capture instructions.
 - `examples/games`: assembly demos
 - `tools/prg32_game.py`: cartridge tooling
 - `docs`: tutorials, labs, API docs
+
+## Repository Structure (Academic View)
+
+- `components/prg32`: framework API/ABI and hardware abstraction layer
+- `main`: reference runtime firmware app (minimal and teachable baseline)
+- `examples/games`: course demos in RISC-V assembly (`ascii` + `graphics`)
+- `docs/labs`: lab handouts, debugging assignments, and assessment-friendly exercises
+- `tools`: reproducible developer tooling (cartridge builder, QEMU scripts, score server)
+- `hardware`: architecture notes and board integration scaffold
+
+## Contributors
+
+- Raffaele Montella - UniParthenope - academic supervisor / project lead
+- Ivan Cafiero - UniParthenope - Computer Science student
+
+See [CONTRIBUTORS.md](/Users/ivan/Desktop/PRG32/CONTRIBUTORS.md) for contributor metadata suitable for academic submissions.
+
+## Citation
+
+For reports, theses, or coursework submissions, use the citation metadata in
+[CITATION.cff](/Users/ivan/Desktop/PRG32/CITATION.cff).

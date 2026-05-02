@@ -4,11 +4,13 @@
 void prg32_display_init(void);
 void prg32_input_init(void);
 void prg32_audio_init(void);
+void prg32_abi_exports_keep(void);
 
 void prg32_init(void) {
     prg32_display_init();
     prg32_input_init();
     prg32_audio_init();
+    prg32_abi_exports_keep();
     prg32_cart_init();
     prg32_wifi_scores_init();
     prg32_scores_api_start();

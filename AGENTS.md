@@ -12,6 +12,20 @@ is deliberately simple, readable, and classroom-oriented. Preserve that spirit:
 prefer explicit code, clear names, and teachable examples over clever compact
 abstractions.
 
+## Academic Project Context
+
+Treat this repository as an academic-style software artifact:
+
+- prioritize reproducibility over convenience
+- keep implementation choices explainable in lab/classroom settings
+- keep documentation aligned with coursework and assessment usage
+- prefer transparent behavior over hidden automation
+
+Named contributor metadata used across project docs:
+
+- Raffaele Montella - UniParthenope - academic supervisor / project lead
+- Ivan Cafiero - UniParthenope - Computer Science student
+
 ## Project Snapshot
 
 - Target board: ESP32-C6.
@@ -226,6 +240,8 @@ Core docs:
 - `docs/score_api.md`: board-local and server score APIs.
 - `docs/external_controllers.md`: UART bridge protocol.
 - `docs/labs/`: lab handouts, debugging exercises, break/fix assignments.
+- `CONTRIBUTORS.md`: contributor metadata for coursework/project submissions.
+- `CITATION.cff`: citation metadata for reports, theses, and reproducible references.
 
 When editing labs:
 
@@ -296,6 +312,17 @@ PC-side helper that emits the PRG32 UART packet.
 - Before committing or finalizing, run at least `git diff --check`.
 - If a push is rejected because remote moved, pull/rebase and resolve conflicts
   without force-pushing unless the user explicitly requests a force push.
+
+## Metadata Consistency Rules
+
+When changing authorship or academic attribution, keep these files in sync:
+
+- `README.md`
+- `CONTRIBUTORS.md`
+- `CONTRIBUTING.md`
+- `CITATION.cff`
+
+Do not silently remove existing contributor attribution unless explicitly requested.
 
 ## Validation Checklist
 

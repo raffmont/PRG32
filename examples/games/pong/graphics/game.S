@@ -6,10 +6,12 @@
 #include "prg32_config.h"
 .option norelax
 .section .data
-pong_graphics_x:      .word 20          /* Object x coordinate in pixels. */
-pong_graphics_y:      .word 20          /* Object y coordinate in pixels. */
-pong_graphics_dx:     .word 2           /* Horizontal velocity (teaching variable). */
-pong_graphics_dy:     .word 1           /* Vertical velocity (teaching variable). */
+pong_graphics_paddle_x: .word 120       /* Paddle x coordinate in pixels. */
+pong_graphics_paddle_dx:.word 2         /* Paddle horizontal velocity. */
+pong_graphics_ball_x:   .word 156       /* Ball x coordinate in pixels. */
+pong_graphics_ball_y:   .word 96        /* Ball y coordinate in pixels. */
+pong_graphics_ball_dx:  .word 2         /* Ball horizontal velocity. */
+pong_graphics_ball_dy:  .word 1         /* Ball vertical velocity. */
 pong_graphics_score:  .word 0           /* Simple score/counter. */
 
 .section .rodata
@@ -38,43 +40,62 @@ pong_graphics_init:
     ret                           /* Return to the C game loop. */
 
 pong_graphics_update:
-    /* UPDATE: runs every frame and changes game state (x/y/score). */
-    addi sp, sp, -16              /* Save caller state before using C functions. */
+    /*
+     * UPDATE: run autonomous demo motion so QEMU always shows activity.
+     * Paddle moves left/right and the ball bounces on all viewport edges.
+     */
+    addi sp, sp, -16              /* Keep a normal call-safe frame style. */
     sw ra, 12(sp)                 /* Preserve return address. */
-    call prg32_input_read         /* Read buttons; result appears in a0. */
-    mv t0, a0                     /* Copy button bitmask into temporary register t0. */
 
-    la t1, pong_graphics_x        /* Load address of x variable. */
-    lw t2, 0(t1)                  /* Load current x value. */
-    andi t3, t0, 1                /* Test LEFT button bit. */
-    beqz t3, 1f                   /* If not pressed, skip left movement. */
-    addi t2, t2, -3               /* Move object left by 3 pixels. */
-1:  andi t3, t0, 2                /* Test RIGHT button bit. */
-    beqz t3, 2f                   /* If not pressed, skip right movement. */
-    addi t2, t2, 3                /* Move object right by 3 pixels. */
-2:  bltz t2, 3f                   /* Clamp negative x back to zero. */
-    li t3, 288                    /* Maximum x for a 32-pixel sprite. */
-    ble t2, t3, 4f                /* Keep x when in range. */
-    mv t2, t3                     /* Clamp to right edge. */
+    /* Paddle auto motion: x += dx, bounce at [0, 256] for 64-pixel paddle. */
+    la t1, pong_graphics_paddle_x
+    lw t2, 0(t1)                  /* t2 = paddle x */
+    la t3, pong_graphics_paddle_dx
+    lw t4, 0(t3)                  /* t4 = paddle dx */
+    add t2, t2, t4
+    bltz t2, 1f                   /* Left wall hit. */
+    li t5, 256                    /* 320 - paddle width (64). */
+    ble t2, t5, 2f
+    mv t2, t5                     /* Right wall clamp. */
+    neg t4, t4                    /* Reverse direction. */
+    j 2f
+1:  li t2, 0                      /* Left wall clamp. */
+    neg t4, t4                    /* Reverse direction. */
+2:  sw t2, 0(t1)
+    sw t4, 0(t3)
+
+    /* Ball autonomous motion: x/y += dx/dy with edge bounces. */
+    la t1, pong_graphics_ball_x
+    lw t2, 0(t1)                  /* t2 = ball x */
+    la t3, pong_graphics_ball_dx
+    lw t4, 0(t3)                  /* t4 = ball dx */
+    add t2, t2, t4
+    bltz t2, 3f
+    li t5, 312                    /* 320 - ball width (8). */
+    ble t2, t5, 4f
+    mv t2, t5
+    neg t4, t4
     j 4f
-3:  li t2, 0                      /* Clamp to left edge. */
-4:  sw t2, 0(t1)                  /* Store bounded x. */
+3:  li t2, 0
+    neg t4, t4
+4:  sw t2, 0(t1)
+    sw t4, 0(t3)
 
-    la t1, pong_graphics_y        /* Load address of y variable. */
-    lw t2, 0(t1)                  /* Load current y value. */
-    andi t3, t0, 4                /* Test UP button bit. */
-    beqz t3, 5f                   /* If not pressed, skip up movement. */
-    addi t2, t2, -3               /* Move object up by 3 pixels. */
-5:  andi t3, t0, 8                /* Test DOWN button bit. */
-    beqz t3, 6f                   /* If not pressed, skip down movement. */
-    addi t2, t2, 3                /* Move object down by 3 pixels. */
-6:  bltz t2, 7f                   /* Clamp negative y back to zero. */
-    li t3, 188                    /* Maximum y for a 12-pixel sprite. */
-    ble t2, t3, 8f                /* Keep y when in range. */
-    mv t2, t3                     /* Clamp to bottom edge. */
-    j 8f
-7:  li t2, 0                      /* Clamp to top edge. */
-8:  sw t2, 0(t1)                  /* Store bounded y. */
+    la t1, pong_graphics_ball_y
+    lw t2, 0(t1)                  /* t2 = ball y */
+    la t3, pong_graphics_ball_dy
+    lw t4, 0(t3)                  /* t4 = ball dy */
+    add t2, t2, t4
+    bltz t2, 5f
+    li t5, 192                    /* 200 - ball height (8). */
+    ble t2, t5, 6f
+    mv t2, t5
+    neg t4, t4
+    j 6f
+5:  li t2, 0
+    neg t4, t4
+6:  sw t2, 0(t1)
+    sw t4, 0(t3)
 
     la t1, pong_graphics_score    /* Load score variable address. */
     lw t2, 0(t1)                  /* Load current score/counter. */
@@ -91,14 +112,22 @@ pong_graphics_draw:
     li a0, 0                      /* RGB565 black background. */
     call prg32_gfx_clear          /* Clear 320x200 retro graphics viewport. */
 
-    la t0, pong_graphics_x        /* Load address of x coordinate. */
-    lw a0, 0(t0)                  /* a0 = bounded x position. */
-    la t0, pong_graphics_y        /* Load address of y coordinate. */
-    lw a1, 0(t0)                  /* a1 = bounded y position. */
-    li a2, 32                     /* a2 = rectangle width. */
-    li a3, 12                     /* a3 = rectangle height. */
+    la t0, pong_graphics_paddle_x /* Paddle x coordinate. */
+    lw a0, 0(t0)
+    li a1, 188                    /* Paddle stays near bottom for visibility. */
+    li a2, 64                     /* Wide paddle is easy to see in QEMU. */
+    li a3, 8
     li a4, 65535                  /* a4 = white color in RGB565. */
-    call prg32_gfx_rect           /* Draw one moving arcade object. */
+    call prg32_gfx_rect           /* Draw auto-moving paddle. */
+
+    la t0, pong_graphics_ball_x   /* Ball x coordinate. */
+    lw a0, 0(t0)
+    la t0, pong_graphics_ball_y   /* Ball y coordinate. */
+    lw a1, 0(t0)
+    li a2, 8
+    li a3, 8
+    li a4, 65504                  /* Yellow ball. */
+    call prg32_gfx_rect           /* Draw bouncing ball. */
 
 #if PRG32_DEBUG
     /*
@@ -110,10 +139,9 @@ pong_graphics_draw:
     la t0, pong_graphics_score    /* Reuse score as a tiny frame counter. */
     lw t2, 0(t0)
     li a0, 1                      /* Enable overlay. */
-    la t0, pong_graphics_x
+    la t0, pong_graphics_paddle_x
     lw a1, 0(t0)                  /* x */
-    la t0, pong_graphics_y
-    lw a2, 0(t0)                  /* y */
+    li a2, 188                    /* y */
     mv a3, t1                     /* input mask */
     mv a4, t2                     /* frame/counter */
     call prg32_debug_overlay_draw

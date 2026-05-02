@@ -7,9 +7,15 @@
 
 .section .data
 asteroids_graphics_x:      .word 156       /* Ship x coordinate in pixels. */
-asteroids_graphics_y:      .word 96        /* Ship y coordinate in pixels. */
-asteroids_graphics_rock_x: .word 260       /* Asteroid x coordinate in pixels. */
-asteroids_graphics_rock_y: .word 40        /* Asteroid y coordinate in pixels. */
+asteroids_graphics_y:      .word 182       /* Ship y coordinate in pixels. */
+asteroids_graphics_ship_dx:.word 2         /* Ship patrol speed. */
+asteroids_graphics_alien_x:.word 260       /* Alien ship x coordinate in pixels. */
+asteroids_graphics_alien_y:.word 32        /* Alien ship y coordinate in pixels. */
+asteroids_graphics_alien_dx:.word -2       /* Alien horizontal speed. */
+asteroids_graphics_shot_x: .word 0         /* Laser shot x coordinate. */
+asteroids_graphics_shot_y: .word 0         /* Laser shot y coordinate. */
+asteroids_graphics_shot_on:.word 0         /* 1 while shot is active, 0 otherwise. */
+asteroids_graphics_cooldown:.word 0        /* Frames before auto-firing again. */
 asteroids_graphics_score:  .word 0         /* Score/frame counter. */
 
 .section .rodata
@@ -39,61 +45,131 @@ asteroids_graphics_init:
 asteroids_graphics_update:
     addi sp, sp, -16                    /* Save state before framework call. */
     sw ra, 12(sp)                       /* Preserve return address. */
-    call prg32_input_read               /* Read input mask into a0. */
-    mv t0, a0                           /* Copy input into t0. */
 
+    /* Ship patrol: x += ship_dx, bounce between screen edges. */
     la t1, asteroids_graphics_x         /* Load address of ship x. */
     lw t2, 0(t1)                        /* Load ship x. */
-    andi t3, t0, 1                      /* Test PRG32_BTN_LEFT. */
-    beqz t3, 1f                         /* Skip if left is not pressed. */
-    addi t2, t2, -4                     /* Move ship left. */
-1:  andi t3, t0, 2                      /* Test PRG32_BTN_RIGHT. */
-    beqz t3, 2f                         /* Skip if right is not pressed. */
-    addi t2, t2, 4                      /* Move ship right. */
-2:  bltz t2, 3f                         /* Clamp negative x. */
-    li t3, 312                          /* Right edge for 8-pixel ship. */
-    ble t2, t3, 4f                      /* Keep x if in range. */
-    mv t2, t3                           /* Clamp to right edge. */
-    j 4f                                /* Continue. */
-3:  li t2, 0                            /* Clamp to left edge. */
-4:  sw t2, 0(t1)                        /* Store ship x. */
+    la t3, asteroids_graphics_ship_dx
+    lw t4, 0(t3)
+    add t2, t2, t4
+    bltz t2, .Lasteroids_ship_left
+    li t5, 312
+    ble t2, t5, .Lasteroids_ship_store
+    li t2, 312
+    neg t4, t4
+    j .Lasteroids_ship_store
+.Lasteroids_ship_left:
+    li t2, 0
+    neg t4, t4
+.Lasteroids_ship_store:
+    sw t2, 0(t1)
+    sw t4, 0(t3)
 
-    la t1, asteroids_graphics_y         /* Load address of ship y. */
-    lw t2, 0(t1)                        /* Load ship y. */
-    andi t3, t0, 4                      /* Test PRG32_BTN_UP. */
-    beqz t3, 5f                         /* Skip if up is not pressed. */
-    addi t2, t2, -4                     /* Move ship up. */
-5:  andi t3, t0, 8                      /* Test PRG32_BTN_DOWN. */
-    beqz t3, 6f                         /* Skip if down is not pressed. */
-    addi t2, t2, 4                      /* Move ship down. */
-6:  bltz t2, 7f                         /* Clamp negative y. */
-    li t3, 192                          /* Bottom edge for 8-pixel ship. */
-    ble t2, t3, 8f                      /* Keep y if in range. */
-    mv t2, t3                           /* Clamp to bottom edge. */
-    j 8f                                /* Continue. */
-7:  li t2, 0                            /* Clamp to top edge. */
-8:  sw t2, 0(t1)                        /* Store ship y. */
+    /* Alien patrol: x += alien_dx, wrap to right and swap lane on exit. */
+    la t1, asteroids_graphics_alien_x
+    lw t2, 0(t1)
+    la t3, asteroids_graphics_alien_dx
+    lw t4, 0(t3)
+    add t2, t2, t4
+    bgez t2, .Lasteroids_alien_store
+    li t2, 319
+    la t6, asteroids_graphics_alien_y
+    lw t0, 0(t6)
+    li t5, 32
+    beq t0, t5, .Lasteroids_alien_lane2
+    li t0, 32
+    j .Lasteroids_alien_lane_store
+.Lasteroids_alien_lane2:
+    li t0, 72
+.Lasteroids_alien_lane_store:
+    sw t0, 0(t6)
+.Lasteroids_alien_store:
+    sw t2, 0(t1)
 
-    la t1, asteroids_graphics_rock_x    /* Load address of asteroid x. */
-    lw t2, 0(t1)                        /* Load asteroid x. */
-    addi t2, t2, -2                     /* Drift asteroid left each frame. */
-    bgez t2, 9f                         /* If still visible, keep it. */
-    li t2, 319                          /* Wrap asteroid to right edge. */
-9:  sw t2, 0(t1)                        /* Store asteroid x. */
+    /* Auto-fire: start a new shot when cooldown reaches zero. */
+    la t1, asteroids_graphics_cooldown
+    lw t2, 0(t1)
+    beqz t2, .Lasteroids_spawn_shot
+    addi t2, t2, -1
+    sw t2, 0(t1)
+    j .Lasteroids_update_shot
+.Lasteroids_spawn_shot:
+    la t3, asteroids_graphics_shot_on
+    li t4, 1
+    sw t4, 0(t3)
+    la t3, asteroids_graphics_x
+    lw t4, 0(t3)
+    addi t4, t4, 4
+    la t3, asteroids_graphics_shot_x
+    sw t4, 0(t3)
+    la t3, asteroids_graphics_y
+    lw t4, 0(t3)
+    addi t4, t4, -6
+    la t3, asteroids_graphics_shot_y
+    sw t4, 0(t3)
+    la t3, asteroids_graphics_cooldown
+    li t4, 22
+    sw t4, 0(t3)
 
+.Lasteroids_update_shot:
+    la t1, asteroids_graphics_shot_on
+    lw t2, 0(t1)
+    beqz t2, .Lasteroids_score_tick
+    la t3, asteroids_graphics_shot_y
+    lw t4, 0(t3)
+    addi t4, t4, -4
+    bltz t4, .Lasteroids_shot_off
+    sw t4, 0(t3)
+    j .Lasteroids_hit_check
+.Lasteroids_shot_off:
+    sw zero, 0(t1)
+    j .Lasteroids_score_tick
+
+.Lasteroids_hit_check:
+    la t3, asteroids_graphics_shot_x
+    lw t4, 0(t3)                        /* shot_x */
+    la t6, asteroids_graphics_alien_x
+    lw t0, 0(t6)                        /* alien_x */
+    blt t4, t0, .Lasteroids_score_tick
+    addi t5, t0, 18
+    bgt t4, t5, .Lasteroids_score_tick
+    la t3, asteroids_graphics_shot_y
+    lw t4, 0(t3)                        /* shot_y */
+    la t6, asteroids_graphics_alien_y
+    lw t0, 0(t6)                        /* alien_y */
+    blt t4, t0, .Lasteroids_score_tick
+    addi t5, t0, 12
+    bgt t4, t5, .Lasteroids_score_tick
+
+    /* Hit confirmed: remove shot, respawn alien, reward score, play beep. */
+    la t3, asteroids_graphics_shot_on
+    sw zero, 0(t3)
+    la t3, asteroids_graphics_alien_x
+    li t4, 319
+    sw t4, 0(t3)
+    la t3, asteroids_graphics_alien_y
+    lw t4, 0(t3)
+    li t5, 32
+    beq t4, t5, .Lasteroids_hit_lane2
+    li t4, 32
+    j .Lasteroids_hit_lane_store
+.Lasteroids_hit_lane2:
+    li t4, 72
+.Lasteroids_hit_lane_store:
+    sw t4, 0(t3)
+    la t3, asteroids_graphics_score
+    lw t4, 0(t3)
+    addi t4, t4, 100
+    sw t4, 0(t3)
+    li a0, 980
+    li a1, 20
+    call prg32_audio_beep
+
+.Lasteroids_score_tick:
     la t1, asteroids_graphics_score     /* Load score address. */
     lw t2, 0(t1)                        /* Load score. */
     addi t2, t2, 1                      /* Count each frame. */
-    andi t3, t0, 16                     /* Test PRG32_BTN_A. */
-    beqz t3, .Lasteroids_graphics_store_score /* Skip bonus/beep if A is not pressed. */
-    addi t2, t2, 25                     /* Add fire/action score bonus. */
-    sw t2, 0(t1)                        /* Store score before blocking beep. */
-    li a0, 880                          /* Fire beep frequency. */
-    li a1, 15                           /* Fire beep duration. */
-    call prg32_audio_beep               /* Play short action sound. */
-    j .Lasteroids_graphics_update_done  /* Score already stored. */
-.Lasteroids_graphics_store_score:
-    sw t2, 0(t1)                        /* Store regular frame score. */
+    sw t2, 0(t1)
 
 .Lasteroids_graphics_update_done:
     lw ra, 12(sp)                       /* Restore return address. */
@@ -130,24 +206,38 @@ asteroids_graphics_draw:
     li a4, 65535                        /* RGB565 white. */
     call prg32_gfx_rect                 /* Draw ship body. */
 
-    la t0, asteroids_graphics_rock_x    /* Load asteroid x address. */
-    lw s2, 0(t0)                        /* Keep asteroid x in s2. */
-    la t0, asteroids_graphics_rock_y    /* Load asteroid y address. */
-    lw s3, 0(t0)                        /* Keep asteroid y in s3. */
+    la t0, asteroids_graphics_alien_x   /* Load alien x address. */
+    lw s2, 0(t0)                        /* Keep alien x in s2. */
+    la t0, asteroids_graphics_alien_y   /* Load alien y address. */
+    lw s3, 0(t0)                        /* Keep alien y in s3. */
 
-    mv a0, s2                           /* Asteroid main x. */
-    mv a1, s3                           /* Asteroid main y. */
-    li a2, 18                           /* Asteroid main width. */
-    li a3, 12                           /* Asteroid main height. */
-    li a4, 33808                        /* RGB565 gray. */
-    call prg32_gfx_rect                 /* Draw asteroid block. */
+    mv a0, s2                           /* Alien body x. */
+    mv a1, s3                           /* Alien body y. */
+    li a2, 20                           /* Alien width. */
+    li a3, 12                           /* Alien height. */
+    li a4, 2016                         /* RGB565 green. */
+    call prg32_gfx_rect                 /* Draw alien ship body. */
 
-    addi a0, s2, 5                      /* Asteroid highlight x. */
-    addi a1, s3, -4                     /* Asteroid highlight y. */
-    li a2, 8                            /* Highlight width. */
-    li a3, 4                            /* Highlight height. */
-    li a4, 50712                        /* RGB565 lighter gray. */
-    call prg32_gfx_rect                 /* Draw uneven asteroid top. */
+    addi a0, s2, 4                      /* Alien cockpit x. */
+    addi a1, s3, -3                     /* Alien cockpit y. */
+    li a2, 10                           /* Cockpit width. */
+    li a3, 3                            /* Cockpit height. */
+    li a4, 65535                        /* White cockpit highlight. */
+    call prg32_gfx_rect
+
+    /* Draw the laser when shot_on == 1. */
+    la t0, asteroids_graphics_shot_on
+    lw t1, 0(t0)
+    beqz t1, .Lasteroids_draw_done
+    la t0, asteroids_graphics_shot_x
+    lw a0, 0(t0)
+    la t0, asteroids_graphics_shot_y
+    lw a1, 0(t0)
+    li a2, 2
+    li a3, 8
+    li a4, 65535
+    call prg32_gfx_rect
+.Lasteroids_draw_done:
 
     lw s3, 12(sp)                       /* Restore s3. */
     lw s2, 16(sp)                       /* Restore s2. */
