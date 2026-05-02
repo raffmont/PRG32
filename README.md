@@ -10,6 +10,7 @@ The firmware targets the ESP32-C6 RISC-V microcontroller and an ILI9341 320x240 
 - `main`: minimal framework smoke-test app.
 - `examples/games`: external RISC-V assembly game examples.
 - `docs`: API notes, tutorials, labs, and debugging assignments.
+- `docs/cartridges.md`: flash-once cartridge upload workflow.
 - `docs/qemu.md`: desktop QEMU screen emulator setup.
 - `tools/prg32_score_server`: optional Flask + SQLite classroom scoreboard.
 - `.vscode` and `PRG32.code-workspace`: student-ready VS Code setup.
@@ -26,6 +27,32 @@ idf.py flash monitor
 ```
 
 The default app prints `PRG32 Hello World` through the framework console. Example games are intentionally external to the firmware app so students can add one game at a time during labs.
+
+## Flash Once, Upload Games
+
+PRG32 includes a resident cartridge loader. Flash the firmware once, then build
+and upload native RV32 `.prg32` game cartridges:
+
+```bash
+python3 tools/prg32_game.py build \
+  examples/games/asteroids/graphics/game.S \
+  --firmware-elf build/PRG32.elf \
+  --entry-prefix asteroids_graphics \
+  --name asteroids \
+  --out build/asteroids.prg32
+
+python3 tools/prg32_game.py upload build/asteroids.prg32 --url http://192.168.4.1
+```
+
+The physical firmware exposes a classroom Wi-Fi AP by default:
+
+```text
+SSID: PRG32
+Password: prg32game
+```
+
+QEMU uses the same `.prg32` cartridge format and stages it into
+`build-qemu/qemu_flash.bin`. See `docs/cartridges.md`.
 
 ## QEMU Screen Quick Start
 
@@ -81,6 +108,7 @@ Start with `docs/tutorial.md`, then use the labs in `docs/labs`:
 - Score API: `docs/score_api.md`
 - External controllers: `docs/external_controllers.md`
 - Framework manual: `docs/framework_manual.md`
+- Uploadable cartridges: `docs/cartridges.md`
 - QEMU screen emulator: `docs/qemu.md`
 
 ## Hardware

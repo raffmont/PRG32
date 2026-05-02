@@ -42,6 +42,9 @@ For QEMU:
 idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
 ```
 
+Optional extension: build your rectangle game as a `.prg32` cartridge and upload
+it without reflashing the resident firmware. Use `docs/cartridges.md`.
+
 ## Reflection
 
 Explain why clearing every frame is simple but not always efficient.

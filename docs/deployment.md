@@ -24,7 +24,34 @@ idf.py flash monitor
 
 ## Default app
 
-The default firmware is a framework smoke test that prints `PRG32 Hello World`.
+The default firmware is a resident PRG32 runtime. With no cartridge installed it
+prints `PRG32 Hello World`. When a cartridge is uploaded, the same firmware loads
+the stored game from `cart0` and calls its `init`, `update`, and `draw` entries.
+
+## Flash once, upload games
+
+The physical build starts a Wi-Fi AP for cartridge upload:
+
+```text
+SSID: PRG32
+Password: prg32game
+URL: http://192.168.4.1
+```
+
+Build and upload a game:
+
+```bash
+python3 tools/prg32_game.py build \
+  examples/games/asteroids/graphics/game.S \
+  --firmware-elf build/PRG32.elf \
+  --entry-prefix asteroids_graphics \
+  --name asteroids \
+  --out build/asteroids.prg32
+
+python3 tools/prg32_game.py upload build/asteroids.prg32 --url http://192.168.4.1
+```
+
+See `docs/cartridges.md`.
 
 ## Build an example game
 
@@ -54,6 +81,13 @@ idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphi
 The QEMU build selects `CONFIG_PRG32_DISPLAY_QEMU_RGB` and renders the PRG32
 320x200 game viewport with Espressif's virtual RGB panel. The normal hardware
 build keeps the ESP32-C6 target and ILI9341 SPI display backend.
+
+QEMU cartridge testing uses the same `.prg32` package but stages it into
+`build-qemu/qemu_flash.bin`:
+
+```bash
+python3 tools/prg32_game.py upload-qemu build-qemu/asteroids.prg32
+```
 
 Shortcut scripts:
 

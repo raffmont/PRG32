@@ -47,6 +47,8 @@
 #define PRG32_CONTROLLER_BRIDGE_BAUD 115200
 #define PRG32_PIN_CONTROLLER_TX -1
 #define PRG32_PIN_CONTROLLER_RX -1
+
+#define PRG32_GAME_UPLOAD_ENABLE 0
 #else
 /* Reference ESP32-C6 pins for the physical ILI9341 build. */
 #define PRG32_PIN_LCD_MOSI   6
@@ -73,10 +75,30 @@
 #define PRG32_PIN_CONTROLLER_RX 19
 #endif
 
+/*
+ * Uploadable game cartridges.
+ *
+ * Physical-board builds enable a small SoftAP + HTTP API by default so the
+ * firmware can be flashed once and games can be replaced from a host tool.
+ * QEMU builds keep Wi-Fi disabled and use tools/prg32_game.py to patch the
+ * emulator flash image.
+ */
+#ifndef PRG32_GAME_UPLOAD_ENABLE
+#define PRG32_GAME_UPLOAD_ENABLE 1
+#endif
+
 /* Optional Wi-Fi score REST API. Fill credentials before flashing. */
 #define PRG32_WIFI_SCORES_ENABLE 0
 #define PRG32_WIFI_SSID "YOUR_WIFI_SSID"
 #define PRG32_WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
 #define PRG32_SCORE_MAX 16
+
+#define PRG32_WIFI_STA_ENABLE PRG32_WIFI_SCORES_ENABLE
+#define PRG32_WIFI_AP_ENABLE PRG32_GAME_UPLOAD_ENABLE
+#define PRG32_WIFI_ENABLE (PRG32_WIFI_STA_ENABLE || PRG32_WIFI_AP_ENABLE)
+#define PRG32_WIFI_AP_SSID "PRG32"
+#define PRG32_WIFI_AP_PASSWORD "prg32game"
+#define PRG32_WIFI_AP_CHANNEL 6
+#define PRG32_WIFI_AP_MAX_CONN 4
 
 #endif

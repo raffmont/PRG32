@@ -49,3 +49,23 @@ idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphi
 
 QEMU shows the graphics viewport in a desktop window. Final input, sound, and
 display wiring checks still belong on the physical board.
+
+## Build as an Uploadable Cartridge
+
+After the resident firmware is built, package an example without editing
+`main/CMakeLists.txt`:
+
+```bash
+python3 tools/prg32_game.py build \
+  examples/games/asteroids/graphics/game.S \
+  --firmware-elf build/PRG32.elf \
+  --entry-prefix asteroids_graphics \
+  --name asteroids \
+  --out build/asteroids.prg32
+```
+
+Upload to hardware:
+
+```bash
+python3 tools/prg32_game.py upload build/asteroids.prg32 --url http://192.168.4.1
+```

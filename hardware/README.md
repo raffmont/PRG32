@@ -12,6 +12,9 @@ Desktop QEMU can emulate the PRG32 graphics viewport for early software tests,
 but it does not replace this hardware validation. Use the physical board for
 LCD wiring, GPIO buttons, buzzer output, and controller bridge wiring.
 
+The resident firmware also starts the `PRG32` Wi-Fi AP for cartridge uploads.
+Keep the antenna area of the ESP32-C6 module clear in the enclosure.
+
 ## USB controller bridge
 
 ESP32-C6 remains the main RISC-V teaching microcontroller. It does not directly host arbitrary wired USB HID controllers, so PRG32 uses a bridge:

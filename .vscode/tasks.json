@@ -116,11 +116,112 @@
       "problemMatcher": []
     },
     {
+      "label": "PRG32: cartridge build",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "tools/prg32_game.py",
+        "build",
+        "${input:prg32GameSource}",
+        "--firmware-elf",
+        "${input:prg32FirmwareElf}",
+        "--entry-prefix",
+        "${input:prg32EntryPrefix}",
+        "--name",
+        "${input:prg32CartName}",
+        "--out",
+        "${input:prg32CartOut}"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "PRG32: cartridge upload hardware",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "tools/prg32_game.py",
+        "upload",
+        "${input:prg32CartOut}",
+        "--url",
+        "${input:prg32HardwareUrl}"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "PRG32: cartridge upload qemu",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "tools/prg32_game.py",
+        "upload-qemu",
+        "${input:prg32QemuCartOut}",
+        "--flash",
+        "build-qemu/qemu_flash.bin"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "PRG32: cartridge runtime hardware",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "tools/prg32_game.py",
+        "runtime",
+        "--url",
+        "${input:prg32HardwareUrl}"
+      ],
+      "problemMatcher": []
+    },
+    {
       "label": "PRG32: score server",
       "type": "shell",
       "command": "python3",
       "args": ["tools/prg32_score_server/app.py"],
       "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "prg32GameSource",
+      "type": "promptString",
+      "description": "Assembly game source",
+      "default": "examples/games/asteroids/graphics/game.S"
+    },
+    {
+      "id": "prg32FirmwareElf",
+      "type": "promptString",
+      "description": "Resident firmware ELF",
+      "default": "build/PRG32.elf"
+    },
+    {
+      "id": "prg32EntryPrefix",
+      "type": "promptString",
+      "description": "Game entry prefix",
+      "default": "asteroids_graphics"
+    },
+    {
+      "id": "prg32CartName",
+      "type": "promptString",
+      "description": "Cartridge name",
+      "default": "asteroids"
+    },
+    {
+      "id": "prg32CartOut",
+      "type": "promptString",
+      "description": "Hardware cartridge output",
+      "default": "build/asteroids.prg32"
+    },
+    {
+      "id": "prg32QemuCartOut",
+      "type": "promptString",
+      "description": "QEMU cartridge output",
+      "default": "build-qemu/asteroids.prg32"
+    },
+    {
+      "id": "prg32HardwareUrl",
+      "type": "promptString",
+      "description": "PRG32 hardware URL",
+      "default": "http://192.168.4.1"
     }
   ]
 }

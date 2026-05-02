@@ -116,6 +116,28 @@ for the ESP32-C3 emulator target.
 
 The physical firmware still uses the ILI9341 backend by default.
 
+## Cartridges in QEMU
+
+QEMU uses the same uploadable `.prg32` game package as the real board, but QEMU
+does not emulate the classroom Wi-Fi AP. Stage the cartridge into the emulator
+flash image before starting QEMU:
+
+```bash
+python3 tools/prg32_game.py build \
+  examples/games/asteroids/graphics/game.S \
+  --firmware-elf build-qemu/PRG32.elf \
+  --entry-prefix asteroids_graphics \
+  --name asteroids \
+  --out build-qemu/asteroids.prg32
+
+python3 tools/prg32_game.py upload-qemu build-qemu/asteroids.prg32
+```
+
+If `build-qemu/qemu_flash.bin` does not exist yet, start QEMU once so ESP-IDF
+generates the flash image, quit QEMU, then run `upload-qemu`.
+
+Then run `PRG32: qemu screen`.
+
 ## Running an Example Game
 
 Example games stay outside the default app. To test one in QEMU, wire it into

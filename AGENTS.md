@@ -21,6 +21,7 @@ abstractions.
 - Assembly game examples: `examples/games`.
 - Course materials: `docs`, especially `docs/labs`.
 - Optional score server: `tools/prg32_score_server`.
+- Uploadable game cartridge tool: `tools/prg32_game.py`.
 - Student VS Code setup: `.vscode` and `PRG32.code-workspace`.
 - Hardware notes and v2 scaffold: `hardware`.
 
@@ -38,12 +39,15 @@ abstractions.
 |   |-- main.c                      Default Hello World app
 |   |-- prg32_config.h              Board pins and feature flags
 |   `-- CMakeLists.txt
+|-- partitions_prg32.csv            Resident firmware + cartridge slots
 |-- examples/games/                 External assembly demos, not default build
 |-- docs/                           Manuals, tutorial, labs, debugging exercises
+|-- docs/cartridges.md              Flash-once uploadable game workflow
 |-- docs/qemu.md                    QEMU virtual screen workflow
 |-- hardware/                       Wiring, USB bridge, PCB/enclosure scaffold
 |-- tools/qemu.sh                   macOS/Linux QEMU screen shortcut
 |-- tools/qemu.ps1                  Windows PowerShell QEMU screen shortcut
+|-- tools/prg32_game.py             Cartridge build/upload/staging tool
 |-- tools/prg32_score_server/       Flask + SQLite REST score service
 |-- .vscode/                        Student-ready VS Code tasks/settings
 `-- PRG32.code-workspace
@@ -159,6 +163,12 @@ Important implementation details:
   `esp_lcd_qemu_rgb` for the ESP32-C3 emulator target.
 - Console text must remain visible on LCD and UART mirror modes.
 - `prg32_input_read()` merges local GPIO buttons and optional UART bridge state.
+- Uploadable cartridges run from `prg32_cart_exec` and are linked for that
+  runtime address. Rebuild cartridges whenever the resident firmware changes.
+- Keep `PRG32_CART_RAM_SIZE` small enough for classroom examples unless the
+  partition/RAM plan is intentionally revised.
+- Keep `partitions_prg32.csv`, `sdkconfig.defaults`, and `sdkconfig.defaults.qemu`
+  in sync when changing cartridge slots.
 - The controller UART packet is:
 
 ```text
@@ -212,6 +222,7 @@ Core docs:
 - `docs/tutorial.md`: end-to-end tutorial.
 - `docs/framework_manual.md`: PRG32 API and ABI overview.
 - `docs/qemu.md`: macOS, Windows, and Linux virtual screen workflow.
+- `docs/cartridges.md`: flash-once cartridge upload workflow.
 - `docs/score_api.md`: board-local and server score APIs.
 - `docs/external_controllers.md`: UART bridge protocol.
 - `docs/labs/`: lab handouts, debugging exercises, break/fix assignments.
@@ -242,6 +253,9 @@ Tasks should remain simple wrappers around:
 - `idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor`
 - `idf.py -B build-qemu gdb`
 - `tools/qemu.sh` and `tools/qemu.ps1`
+- `python3 tools/prg32_game.py build ...`
+- `python3 tools/prg32_game.py upload ...`
+- `python3 tools/prg32_game.py upload-qemu ...`
 - `python3 tools/prg32_score_server/app.py`
 
 Do not hard-code one instructor machine path. Use workspace-relative paths and
@@ -290,6 +304,7 @@ Before reporting completion, try the relevant subset:
 ```bash
 git diff --check
 python3 -m py_compile tools/prg32_score_server/app.py
+python3 -m py_compile tools/prg32_game.py
 idf.py build
 idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu build
 ```

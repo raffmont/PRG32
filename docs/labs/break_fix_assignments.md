@@ -65,3 +65,14 @@ hardware.
 
 Fix it: rebuild with the default ILI9341 backend for the board, or use the QEMU
 build only with `idf.py qemu --graphics monitor`.
+
+## Assignment 8 - Cartridge Linked for the Wrong Firmware
+
+Break it: build a `.prg32` cartridge using an old `build/PRG32.elf`, then flash a
+new resident firmware and upload the old cartridge.
+
+Symptoms: `/api/games` rejects the upload with a runtime-address error, or the
+game does not start.
+
+Fix it: rebuild the cartridge against the current firmware ELF or use
+`--runtime-url http://192.168.4.1` so the tool queries the running board.

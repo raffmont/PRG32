@@ -36,6 +36,38 @@ extern "C" {
 #define PRG32_COLOR_CYAN    0x07ff
 #define PRG32_COLOR_MAGENTA 0xf81f
 
+#define PRG32_CART_MAGIC "PRG2"
+#define PRG32_CART_ABI_MAJOR 1
+#define PRG32_CART_ABI_MINOR 0
+#define PRG32_CART_RAM_SIZE (32u * 1024u)
+#define PRG32_CART_NAME_LEN 32
+
+typedef struct __attribute__((packed)) {
+    char magic[4];
+    uint16_t abi_major;
+    uint16_t abi_minor;
+    uint16_t header_size;
+    uint16_t flags;
+    uint32_t load_addr;
+    uint32_t code_size;
+    uint32_t mem_size;
+    uint32_t init_offset;
+    uint32_t update_offset;
+    uint32_t draw_offset;
+    uint32_t payload_crc32;
+    char name[PRG32_CART_NAME_LEN];
+} prg32_cart_header_t;
+
+typedef struct {
+    char name[PRG32_CART_NAME_LEN];
+    uint32_t load_addr;
+    uint32_t code_size;
+    uint32_t mem_size;
+    uint32_t generation;
+    uint8_t loaded;
+    uint8_t stored;
+} prg32_cart_info_t;
+
 void prg32_init(void);
 void prg32_set_mode(uint32_t mode);
 uint32_t prg32_ticks_ms(void);
@@ -56,6 +88,20 @@ int prg32_score_submit_remote(const char *base_url,
                               const char *game,
                               const char *player,
                               uint32_t score);
+
+void prg32_cart_init(void);
+uintptr_t prg32_cart_load_addr(void);
+size_t prg32_cart_ram_size(void);
+uint32_t prg32_cart_generation(void);
+int prg32_cart_is_loaded(void);
+int prg32_cart_load_stored(void);
+int prg32_cart_install(const void *image, size_t image_size, int persist);
+int prg32_cart_select_stored(void);
+int prg32_cart_get_info(prg32_cart_info_t *info);
+int prg32_cart_call_init(void);
+int prg32_cart_call_update(void);
+int prg32_cart_call_draw(void);
+const char *prg32_cart_last_error(void);
 
 void prg32_console_clear(void);
 void prg32_console_putc(int ch);

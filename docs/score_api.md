@@ -86,3 +86,6 @@ prg32_score_submit_remote("http://192.168.1.20:5000",
 ## Current implementation
 
 The board-local implementation stores a small in-RAM scoreboard. The optional Python server persists records in SQLite.
+
+The same board HTTP server also hosts the cartridge upload API when
+`PRG32_GAME_UPLOAD_ENABLE` is enabled. See `docs/cartridges.md`.

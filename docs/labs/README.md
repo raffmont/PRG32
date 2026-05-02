@@ -13,6 +13,8 @@ available, then validate final wiring, buttons, and sound on physical hardware.
 3. `lab_03_graphics.md`: draw and move a rectangle.
 4. `lab_04_sound.md`: add sound effects and frame timing.
 5. `lab_05_scores_and_controllers.md`: submit scores and use the UART controller bridge.
+6. Optional cartridge workflow: build and upload games without reflashing; see
+   `docs/cartridges.md`.
 
 ## Debugging
 

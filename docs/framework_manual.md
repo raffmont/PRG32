@@ -33,6 +33,28 @@ When the QEMU backend is selected, `main/prg32_config.h` disables physical GPIO
 buttons, the buzzer, and the UART controller bridge. This keeps desktop screen
 tests focused on rendering and GDB exercises.
 
+## Cartridge runtime
+
+The resident firmware includes a cartridge loader so games can be replaced
+without reflashing the whole ESP32-C6 app.
+
+Important constants:
+
+- `PRG32_CART_MAGIC`: `.prg32` package magic.
+- `PRG32_CART_ABI_MAJOR` / `PRG32_CART_ABI_MINOR`: loader ABI version.
+- `PRG32_CART_RAM_SIZE`: executable cartridge RAM window, currently 32 KiB.
+
+Important functions:
+
+- `prg32_cart_load_addr()`: runtime address used by the host linker.
+- `prg32_cart_install(image, size, persist)`: validate, load, and optionally store.
+- `prg32_cart_call_init()`
+- `prg32_cart_call_update()`
+- `prg32_cart_call_draw()`
+
+The default app automatically calls the current cartridge every frame when one
+is loaded.
+
 ## Tile engine
 
 The tile engine exposes a 40x25 grid of 8x8 tiles. This matches a 320x200 retro screen exactly.

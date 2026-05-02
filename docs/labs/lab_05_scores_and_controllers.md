@@ -29,10 +29,18 @@ curl -X POST http://localhost:5000/api/scores \
 ```
 
 6. Verify that `prg32_input_read` sees both local buttons and bridge input.
+7. Query the cartridge runtime:
+
+```bash
+curl http://192.168.4.1/api/runtime
+```
+
+8. Build and upload one `.prg32` cartridge with `tools/prg32_game.py`.
 
 ## Checkpoint
 
-Show one score in `/api/scores` and one controller movement through the bridge.
+Show one score in `/api/scores`, one controller movement through the bridge, and
+one uploaded cartridge listed by `/api/games`.
 
 Use the physical board for bridge wiring. QEMU can still run the score server
 portion and can be extended later with a host-side UART packet sender.

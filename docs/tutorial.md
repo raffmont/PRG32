@@ -110,3 +110,24 @@ Keep the first version small: one moving object, one collision, one score counte
 
 You can test the same game on the QEMU screen first, then build and flash the
 physical ILI9341 version when it behaves correctly.
+
+## 10. Upload a Game Without Reflashing
+
+After the resident firmware has been flashed once, build the game as a cartridge:
+
+```bash
+python3 tools/prg32_game.py build \
+  examples/games/pong/graphics/game.S \
+  --firmware-elf build/PRG32.elf \
+  --entry-prefix pong_graphics \
+  --name pong \
+  --out build/pong.prg32
+```
+
+Connect to the `PRG32` Wi-Fi network, then upload:
+
+```bash
+python3 tools/prg32_game.py upload build/pong.prg32 --url http://192.168.4.1
+```
+
+Use `docs/cartridges.md` for the full workflow.

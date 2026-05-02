@@ -9,6 +9,7 @@ set(PRG32_PRIV_REQUIRES
     esp_netif
     nvs_flash
     json
+    spi_flash
 )
 
 if(IDF_TARGET STREQUAL "esp32c3")
@@ -22,6 +23,7 @@ endif()
 idf_component_register(
     SRCS
         "prg32_audio.c"
+        "prg32_cart.c"
         "prg32_console.c"
         "prg32_controller.c"
         ${PRG32_DISPLAY_SRC}
