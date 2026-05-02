@@ -1,0 +1,6 @@
+dependencies:
+  espressif/esp_lcd_qemu_rgb:
+    version: "^1.0.2"
+    require: no
+    rules:
+      - if: "target == esp32c3"

@@ -1,6 +1,8 @@
 #ifndef PRG32_CONFIG_H
 #define PRG32_CONFIG_H
 
+#include "sdkconfig.h"
+
 /* Example game identifiers used by lab builds that opt into examples/games. */
 #define PRG32_GAME_PONG_ASCII          1
 #define PRG32_GAME_PONG_GRAPHICS       2
@@ -22,7 +24,31 @@
 
 #define PRG32_DEFAULT_MODE PRG32_MODE_UART_LCD_MIRROR
 
-/* Reference ESP32-C6 pins. Change these for the selected development board. */
+#if CONFIG_PRG32_DISPLAY_QEMU_RGB
+/* QEMU screen builds do not touch physical board pins. */
+#define PRG32_PIN_LCD_MOSI   -1
+#define PRG32_PIN_LCD_MISO   -1
+#define PRG32_PIN_LCD_SCLK   -1
+#define PRG32_PIN_LCD_CS     -1
+#define PRG32_PIN_LCD_DC     -1
+#define PRG32_PIN_LCD_RST    -1
+#define PRG32_PIN_LCD_BL     -1
+
+#define PRG32_PIN_BTN_LEFT   -1
+#define PRG32_PIN_BTN_RIGHT  -1
+#define PRG32_PIN_BTN_UP     -1
+#define PRG32_PIN_BTN_DOWN   -1
+#define PRG32_PIN_BTN_A      -1
+#define PRG32_PIN_BTN_B      -1
+#define PRG32_PIN_BUZZER     -1
+
+#define PRG32_CONTROLLER_BRIDGE_ENABLE 0
+#define PRG32_CONTROLLER_BRIDGE_UART 1
+#define PRG32_CONTROLLER_BRIDGE_BAUD 115200
+#define PRG32_PIN_CONTROLLER_TX -1
+#define PRG32_PIN_CONTROLLER_RX -1
+#else
+/* Reference ESP32-C6 pins for the physical ILI9341 build. */
 #define PRG32_PIN_LCD_MOSI   6
 #define PRG32_PIN_LCD_MISO   7
 #define PRG32_PIN_LCD_SCLK   5
@@ -45,6 +71,7 @@
 #define PRG32_CONTROLLER_BRIDGE_BAUD 115200
 #define PRG32_PIN_CONTROLLER_TX 18
 #define PRG32_PIN_CONTROLLER_RX 19
+#endif
 
 /* Optional Wi-Fi score REST API. Fill credentials before flashing. */
 #define PRG32_WIFI_SCORES_ENABLE 0

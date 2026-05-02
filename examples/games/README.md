@@ -40,3 +40,12 @@ void pong_graphics_draw(void);
 ```
 
 The default PRG32 app is intentionally a clean Hello World so students learn how source files enter the build.
+
+The same temporary game build can be tested in QEMU:
+
+```bash
+idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+```
+
+QEMU shows the graphics viewport in a desktop window. Final input, sound, and
+display wiring checks still belong on the physical board.

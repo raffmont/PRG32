@@ -18,6 +18,16 @@ Build, flash, and edit the minimal PRG32 app.
 
 Show the instructor the serial monitor and, if LCD mode is enabled, the display.
 
+## QEMU Option
+
+If no board is available, run:
+
+1. `PRG32: qemu set target esp32c3`
+2. `PRG32: qemu screen`
+
+The QEMU monitor should print `PRG32 Hello World`, and the virtual screen should
+show the framework console text.
+
 ## Reflection
 
 Which C function actually writes one character to UART and LCD? Find it and write the file name.

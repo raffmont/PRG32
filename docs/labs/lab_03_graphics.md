@@ -33,6 +33,15 @@ call prg32_gfx_rect
 
 The rectangle bounces horizontally without leaving old pixels behind.
 
+You may show this checkpoint on either the physical ILI9341 display or the QEMU
+virtual screen.
+
+For QEMU:
+
+```bash
+idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+```
+
 ## Reflection
 
 Explain why clearing every frame is simple but not always efficient.

@@ -1,0 +1,36 @@
+menu "PRG32 framework"
+
+choice PRG32_DISPLAY_BACKEND
+    prompt "Display backend"
+    default PRG32_DISPLAY_ILI9341
+    help
+        Select the display implementation used by the PRG32 graphics ABI.
+        The ILI9341 backend is for the physical ESP32-C6 classroom board. The
+        QEMU RGB backend is for desktop screen testing with Espressif's
+        ESP32-C3 RISC-V QEMU target and idf.py qemu --graphics.
+
+config PRG32_DISPLAY_ILI9341
+    bool "ILI9341 SPI TFT"
+    help
+        Use the reference ILI9341 320x240 SPI TFT display connected to the
+        ESP32-C6 pins configured in main/prg32_config.h.
+
+config PRG32_DISPLAY_QEMU_RGB
+    bool "QEMU virtual RGB panel"
+    depends on IDF_TARGET_ESP32C3
+    help
+        Use Espressif QEMU's virtual RGB framebuffer. Run with:
+        idf.py qemu --graphics monitor
+
+endchoice
+
+config PRG32_QEMU_FAIL_ON_REAL_HW
+    bool "Fail fast when QEMU backend is run on real hardware"
+    depends on PRG32_DISPLAY_QEMU_RGB
+    default y
+    help
+        The QEMU RGB backend is not available on physical ESP32 boards.
+        Keep this enabled so accidental real-hardware flashes stop clearly
+        during display initialization instead of silently losing graphics.
+
+endmenu

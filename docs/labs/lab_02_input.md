@@ -24,6 +24,10 @@ andi t1, t0, 1
 
 The object must move only while the matching button is pressed.
 
+This checkpoint needs physical buttons or a UART controller bridge. The QEMU
+defaults disable physical input pins, so QEMU is useful for stepping through the
+bitmask code in GDB but not for the final button demonstration.
+
 ## Debug Question
 
 Why is `andi` enough for `PRG32_BTN_LEFT` but not enough for every possible bitmask test?

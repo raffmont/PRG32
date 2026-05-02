@@ -15,7 +15,7 @@ abstractions.
 ## Project Snapshot
 
 - Target board: ESP32-C6.
-- Display: ILI9341 SPI TFT, 320x240 physical, 320x200 game viewport.
+- Display: ILI9341 SPI TFT on hardware, QEMU RGB panel on desktop, 320x200 game viewport.
 - Framework component: `components/prg32`.
 - Default firmware app: `main`, a minimal PRG32 Hello World smoke test.
 - Assembly game examples: `examples/games`.
@@ -31,6 +31,8 @@ abstractions.
 |-- components/prg32/              ESP-IDF component implementing the PRG32 API
 |   |-- include/prg32.h             Public C/assembly ABI
 |   |-- prg32_*.c                   Framework implementation files
+|   |-- Kconfig                     Display backend selection
+|   |-- idf_component.yml           External component dependencies
 |   `-- CMakeLists.txt              Component registration
 |-- main/                           Minimal firmware app and config
 |   |-- main.c                      Default Hello World app
@@ -38,7 +40,10 @@ abstractions.
 |   `-- CMakeLists.txt
 |-- examples/games/                 External assembly demos, not default build
 |-- docs/                           Manuals, tutorial, labs, debugging exercises
+|-- docs/qemu.md                    QEMU virtual screen workflow
 |-- hardware/                       Wiring, USB bridge, PCB/enclosure scaffold
+|-- tools/qemu.sh                   macOS/Linux QEMU screen shortcut
+|-- tools/qemu.ps1                  Windows PowerShell QEMU screen shortcut
 |-- tools/prg32_score_server/       Flask + SQLite REST score service
 |-- .vscode/                        Student-ready VS Code tasks/settings
 `-- PRG32.code-workspace
@@ -103,6 +108,15 @@ idf.py build
 idf.py flash monitor
 ```
 
+For desktop screen testing, use the QEMU build directory and defaults file.
+Espressif's maintained RISC-V QEMU graphics target is ESP32-C3, while the
+physical PRG32 board build remains ESP32-C6.
+
+```bash
+idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
+idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+```
+
 Useful checks:
 
 ```bash
@@ -122,6 +136,8 @@ friendly to RISC-V assembly callers.
 When editing framework code:
 
 - Keep dependencies in `components/prg32/CMakeLists.txt`.
+- Keep `REQUIRES` and `PRIV_REQUIRES` independent of `CONFIG_*` choices; ESP-IDF
+  expands component requirements before configuration-dependent source choices.
 - Keep app-specific pin and feature config in `main/prg32_config.h`.
 - Preserve `prg32_init()` as the one-call framework initializer.
 - Do not expose ESP-IDF-only types in the public ABI unless absolutely needed.
@@ -132,7 +148,15 @@ When editing framework code:
 Important implementation details:
 
 - ILI9341 receives RGB565 bytes in wire order; do not regress byte swapping.
+- QEMU RGB receives RGB565 framebuffer data directly; do not apply ILI9341 wire
+  byte swapping in `prg32_display_qemu_rgb.c`.
 - The game viewport is `PRG32_GAME_W` x `PRG32_GAME_H` = 320x200.
+- Physical builds default to `CONFIG_PRG32_DISPLAY_ILI9341`.
+- QEMU builds use `sdkconfig.defaults.qemu` and `CONFIG_PRG32_DISPLAY_QEMU_RGB`.
+- `main/prg32_config.h` disables physical pins, buzzer, and controller bridge
+  when the QEMU display backend is selected.
+- `components/prg32/idf_component.yml` and CMake only pull
+  `esp_lcd_qemu_rgb` for the ESP32-C3 emulator target.
 - Console text must remain visible on LCD and UART mirror modes.
 - `prg32_input_read()` merges local GPIO buttons and optional UART bridge state.
 - The controller UART packet is:
@@ -187,6 +211,7 @@ Core docs:
 - `README.md`: top-level orientation.
 - `docs/tutorial.md`: end-to-end tutorial.
 - `docs/framework_manual.md`: PRG32 API and ABI overview.
+- `docs/qemu.md`: macOS, Windows, and Linux virtual screen workflow.
 - `docs/score_api.md`: board-local and server score APIs.
 - `docs/external_controllers.md`: UART bridge protocol.
 - `docs/labs/`: lab handouts, debugging exercises, break/fix assignments.
@@ -214,6 +239,9 @@ Tasks should remain simple wrappers around:
 - `idf.py menuconfig`
 - `idf.py build`
 - `idf.py flash monitor`
+- `idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor`
+- `idf.py -B build-qemu gdb`
+- `tools/qemu.sh` and `tools/qemu.ps1`
 - `python3 tools/prg32_score_server/app.py`
 
 Do not hard-code one instructor machine path. Use workspace-relative paths and
@@ -263,10 +291,11 @@ Before reporting completion, try the relevant subset:
 git diff --check
 python3 -m py_compile tools/prg32_score_server/app.py
 idf.py build
+idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu build
 ```
 
 If ESP-IDF is not available, use the first two checks and clearly state that the
-firmware build could not be run locally.
+firmware or QEMU build could not be run locally.
 
 For assembly-only example changes, also inspect:
 

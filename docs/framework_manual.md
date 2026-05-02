@@ -14,7 +14,24 @@ Arguments use the standard RISC-V calling convention: `a0` to `a7` carry argumen
 
 ## Graphics model
 
-The display is 320x240, but the game viewport is 320x200. The extra vertical area is reserved for border, status, or debugging. The renderer tracks dirty rectangles and sends only changed areas to the ILI9341 over SPI using ESP-IDF SPI DMA.
+The physical display is 320x240, but the game viewport is 320x200. The extra vertical area is reserved for border, status, or debugging. The ILI9341 renderer tracks dirty rectangles and sends only changed areas over SPI using ESP-IDF SPI DMA.
+
+The QEMU renderer exposes the same 320x200 PRG32 viewport through Espressif's virtual RGB panel. Student assembly code does not change; only the selected display backend changes.
+
+Display backend selection:
+
+- `CONFIG_PRG32_DISPLAY_ILI9341`: physical ILI9341 SPI TFT, default.
+- `CONFIG_PRG32_DISPLAY_QEMU_RGB`: QEMU virtual RGB framebuffer.
+
+Use the QEMU defaults file when running on a desktop:
+
+```bash
+idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+```
+
+When the QEMU backend is selected, `main/prg32_config.h` disables physical GPIO
+buttons, the buzzer, and the UART controller bridge. This keeps desktop screen
+tests focused on rendering and GDB exercises.
 
 ## Tile engine
 

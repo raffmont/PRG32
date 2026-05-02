@@ -23,6 +23,9 @@ call prg32_audio_beep
 
 The game should make a sound on collision and continue moving smoothly.
 
+QEMU can verify that the code path reaches `prg32_audio_beep`, but final sound
+behavior must be checked on hardware with the passive buzzer.
+
 ## Reflection
 
 Why does a blocking audio helper make timing easier to understand but worse for fast games?

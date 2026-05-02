@@ -7,8 +7,14 @@ Use GDB to watch RISC-V register values across calls from assembly into the PRG3
 ## Setup
 
 1. Build with debug symbols.
-2. Start the VS Code configuration `PRG32: ESP-IDF debug`.
+2. Start the VS Code configuration `PRG32: ESP-IDF debug`, or use the QEMU debug tasks.
 3. Set a breakpoint on an assembly update routine, such as `pong_graphics_update`.
+
+For QEMU debugging:
+
+1. Run `PRG32: qemu debug server`.
+2. Run `PRG32: qemu gdb`.
+3. Set the same breakpoint from GDB.
 
 ## Tasks
 

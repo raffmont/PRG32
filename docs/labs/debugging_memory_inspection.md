@@ -8,6 +8,9 @@ Inspect `.data` variables from an assembly game and connect memory words to on-s
 
 Use an example game from `examples/games` and set a breakpoint in its update routine.
 
+This exercise works on physical hardware or QEMU. For QEMU, start
+`PRG32: qemu debug server`, then connect with `PRG32: qemu gdb`.
+
 ## Tasks
 
 1. Find the label for the x coordinate, for example `pong_graphics_x`.
@@ -27,6 +30,8 @@ set var pong_graphics_x = 120
 ```
 
 6. Continue execution and observe the display.
+
+On QEMU, observe the virtual RGB screen. On hardware, observe the ILI9341.
 
 ## Questions
 

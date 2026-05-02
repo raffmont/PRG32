@@ -1,0 +1,3 @@
+# Use with: idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
+CONFIG_PRG32_DISPLAY_QEMU_RGB=y
+CONFIG_PRG32_QEMU_FAIL_ON_REAL_HW=y

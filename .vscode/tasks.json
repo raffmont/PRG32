@@ -31,6 +31,84 @@
       "problemMatcher": []
     },
     {
+      "label": "PRG32: qemu set target esp32c3",
+      "type": "shell",
+      "command": "idf.py",
+      "args": [
+        "-B",
+        "build-qemu",
+        "-D",
+        "SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu",
+        "set-target",
+        "esp32c3"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "PRG32: qemu build",
+      "type": "shell",
+      "command": "idf.py",
+      "args": [
+        "-B",
+        "build-qemu",
+        "-D",
+        "SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu",
+        "-D",
+        "IDF_TARGET=esp32c3",
+        "build"
+      ],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "PRG32: qemu screen",
+      "type": "shell",
+      "command": "idf.py",
+      "args": [
+        "-B",
+        "build-qemu",
+        "-D",
+        "SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu",
+        "-D",
+        "IDF_TARGET=esp32c3",
+        "qemu",
+        "--graphics",
+        "monitor"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "PRG32: qemu debug server",
+      "type": "shell",
+      "command": "idf.py",
+      "args": [
+        "-B",
+        "build-qemu",
+        "-D",
+        "SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu",
+        "-D",
+        "IDF_TARGET=esp32c3",
+        "qemu",
+        "--graphics",
+        "--gdb",
+        "monitor"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "PRG32: qemu gdb",
+      "type": "shell",
+      "command": "idf.py",
+      "args": [
+        "-B",
+        "build-qemu",
+        "-D",
+        "IDF_TARGET=esp32c3",
+        "gdb"
+      ],
+      "problemMatcher": []
+    },
+    {
       "label": "PRG32: clean",
       "type": "shell",
       "command": "idf.py",

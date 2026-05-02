@@ -11,3 +11,14 @@ Useful calls:
 - `prg32_sprite_hitbox(ax, ay, aw, ah, bx, by, bw, bh)`
 
 The framework internally tracks dirty rectangles, so students can draw only changed objects when they are ready for optimization exercises.
+
+The same calls work on both display backends:
+
+- physical ILI9341 SPI TFT
+- QEMU virtual RGB screen
+
+For a desktop graphics test, run:
+
+```bash
+idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+```

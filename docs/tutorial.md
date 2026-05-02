@@ -7,7 +7,7 @@ This tutorial turns a clean PRG32 firmware checkout into a small assembly game p
 1. Install VS Code.
 2. Install the recommended extensions when opening `PRG32.code-workspace`.
 3. Install ESP-IDF through the Espressif VS Code extension.
-4. Connect an ESP32-C6 board.
+4. Connect an ESP32-C6 board, or install `qemu-riscv32` for desktop screen testing.
 
 ## 2. Build the Base App
 
@@ -18,6 +18,14 @@ Flash with `PRG32: flash monitor`. The monitor should show:
 ```text
 PRG32 Hello World
 ```
+
+To run without hardware, use the QEMU tasks instead:
+
+1. `PRG32: qemu set target esp32c3`
+2. `PRG32: qemu build`
+3. `PRG32: qemu screen`
+
+The QEMU screen task opens a virtual 320x200 PRG32 display window.
 
 ## 3. Read the API
 
@@ -99,3 +107,6 @@ For example, `examples/games/pong/graphics/game.S` exports:
 - `pong_graphics_draw`
 
 Keep the first version small: one moving object, one collision, one score counter.
+
+You can test the same game on the QEMU screen first, then build and flash the
+physical ILI9341 version when it behaves correctly.

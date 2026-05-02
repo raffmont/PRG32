@@ -34,6 +34,9 @@ curl -X POST http://localhost:5000/api/scores \
 
 Show one score in `/api/scores` and one controller movement through the bridge.
 
+Use the physical board for bridge wiring. QEMU can still run the score server
+portion and can be extended later with a host-side UART packet sender.
+
 ## Reflection
 
 What part of the system translates a real USB controller into the simple PRG32 bitmask?

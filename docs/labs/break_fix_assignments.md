@@ -2,6 +2,10 @@
 
 Each assignment starts from a working example game. Students must introduce or diagnose the bug, gather evidence, and repair it.
 
+Most graphics and register/memory bugs can be reproduced in QEMU with
+`PRG32: qemu screen` or the QEMU GDB tasks. Wiring, button, buzzer, and
+ILI9341-specific problems still require the physical board.
+
 ## Assignment 1 - Lost Return Address
 
 Break it: remove the `sw ra, 12(sp)` / `lw ra, 12(sp)` pair around a function that calls a PRG32 helper.
@@ -49,3 +53,15 @@ Break it: POST a score without `player` or with a negative score.
 Symptoms: `/api/scores` rejects the record.
 
 Fix it: correct the JSON and identify which validation branch returned the error.
+
+## Assignment 7 - Wrong Emulator Build
+
+Break it: try to use the QEMU build directory as if it were the physical board
+firmware.
+
+Symptoms: the target is ESP32-C3 instead of ESP32-C6, or the firmware stops
+during display initialization because the QEMU RGB panel is not present on real
+hardware.
+
+Fix it: rebuild with the default ILI9341 backend for the board, or use the QEMU
+build only with `idf.py qemu --graphics monitor`.
