@@ -3,6 +3,7 @@
  * This file is intentionally verbose: every instruction is commented so
  * first-year students can connect RISC-V assembly to visible hardware effects.
  */
+#include "prg32_config.h"
 .option norelax
 .section .data
 pong_graphics_x:      .word 20          /* Object x coordinate in pixels. */
@@ -21,6 +22,7 @@ pong_graphics_msg:   .asciz "PRG32 RISC-V ASM DEMO\n"
 .global pong_graphics_draw
 
 pong_graphics_init:
+    /* INIT: runs once when the cartridge is selected. */
     addi sp, sp, -16              /* Build a tiny stack frame before calling C. */
     sw ra, 12(sp)                 /* Save return address because call overwrites ra. */
     call prg32_console_clear      /* Clear UART/LCD text console. */
@@ -36,6 +38,7 @@ pong_graphics_init:
     ret                           /* Return to the C game loop. */
 
 pong_graphics_update:
+    /* UPDATE: runs every frame and changes game state (x/y/score). */
     addi sp, sp, -16              /* Save caller state before using C functions. */
     sw ra, 12(sp)                 /* Preserve return address. */
     call prg32_input_read         /* Read buttons; result appears in a0. */
@@ -82,6 +85,7 @@ pong_graphics_update:
     ret                           /* Return to C scheduler. */
 
 pong_graphics_draw:
+    /* DRAW: runs every frame and renders the current game state. */
     addi sp, sp, -16              /* Save state before C drawing calls. */
     sw ra, 12(sp)                 /* Save return address. */
     li a0, 0                      /* RGB565 black background. */
@@ -95,6 +99,25 @@ pong_graphics_draw:
     li a3, 12                     /* a3 = rectangle height. */
     li a4, 65535                  /* a4 = white color in RGB565. */
     call prg32_gfx_rect           /* Draw one moving arcade object. */
+
+#if PRG32_DEBUG
+    /*
+     * Optional debug HUD example:
+     *   prg32_debug_overlay_draw(1, x, y, input_mask, frame_counter)
+     */
+    call prg32_input_read         /* Read current input for HUD. */
+    mv t1, a0                     /* Keep input mask in t1. */
+    la t0, pong_graphics_score    /* Reuse score as a tiny frame counter. */
+    lw t2, 0(t0)
+    li a0, 1                      /* Enable overlay. */
+    la t0, pong_graphics_x
+    lw a1, 0(t0)                  /* x */
+    la t0, pong_graphics_y
+    lw a2, 0(t0)                  /* y */
+    mv a3, t1                     /* input mask */
+    mv a4, t2                     /* frame/counter */
+    call prg32_debug_overlay_draw
+#endif
 
     lw ra, 12(sp)                 /* Restore return address after drawing. */
     addi sp, sp, 16               /* Free stack frame. */

@@ -13,6 +13,7 @@ import binascii
 import json
 import os
 from pathlib import Path
+import shutil
 import struct
 import subprocess
 import sys
@@ -417,6 +418,47 @@ def runtime(args: argparse.Namespace) -> None:
         raise SystemExit("runtime requires --url or --firmware-elf")
 
 
+def doctor(args: argparse.Namespace) -> None:
+    failures = 0
+
+    def ok(msg: str) -> None:
+        print(f"[OK] {msg}")
+
+    def fail(msg: str) -> None:
+        nonlocal failures
+        failures += 1
+        print(f"[FAIL] {msg}")
+
+    if shutil.which("idf.py"):
+        ok("idf.py found")
+    else:
+        fail("idf.py missing (source ESP-IDF export.sh)")
+
+    gcc_name = args.tool_prefix + "gcc"
+    if shutil.which(gcc_name):
+        ok(f"{gcc_name} found")
+    else:
+        fail(f"{gcc_name} missing (source ESP-IDF export.sh)")
+
+    partitions_path = Path(args.partitions)
+    if partitions_path.exists():
+        ok(f"partitions file found: {partitions_path}")
+        try:
+            offset, size = read_partition_slot(partitions_path, args.slot)
+        except SystemExit as exc:
+            fail(str(exc))
+        else:
+            ok(
+                f"partition {args.slot} parsed "
+                f"(offset=0x{offset:06x}, size={size})"
+            )
+    else:
+        fail(f"partitions file missing: {partitions_path}")
+
+    if failures:
+        raise SystemExit(1)
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tool-prefix", default="riscv32-esp-elf-")
@@ -449,6 +491,11 @@ def main(argv: list[str]) -> int:
     p.add_argument("--partitions", default=str(DEFAULT_PARTITION_TABLE))
     p.add_argument("--slot", default=DEFAULT_CART_SLOT)
     p.set_defaults(func=upload_qemu)
+
+    p = sub.add_parser("doctor", help="check local toolchain prerequisites")
+    p.add_argument("--partitions", default=str(DEFAULT_PARTITION_TABLE))
+    p.add_argument("--slot", default=DEFAULT_CART_SLOT)
+    p.set_defaults(func=doctor)
 
     args = parser.parse_args(argv)
     args.func(args)

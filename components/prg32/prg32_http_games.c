@@ -7,6 +7,7 @@
 #include "esp_err.h"
 #include "esp_http_server.h"
 #include "esp_log.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -30,11 +31,13 @@ static esp_err_t send_runtime(httpd_req_t *req) {
         return ESP_ERR_NO_MEM;
     }
     cJSON_AddStringToObject(root, "name", "PRG32");
+    cJSON_AddStringToObject(root, "firmware_version", PRG32_FIRMWARE_VERSION);
     cJSON_AddStringToObject(root, "cart_magic", PRG32_CART_MAGIC);
     cJSON_AddNumberToObject(root, "cart_abi_major", PRG32_CART_ABI_MAJOR);
     cJSON_AddNumberToObject(root, "cart_abi_minor", PRG32_CART_ABI_MINOR);
     add_json_u32(root, "cart_load_addr", (uint32_t)prg32_cart_load_addr());
     add_json_u32(root, "cart_ram_size", (uint32_t)prg32_cart_ram_size());
+    cJSON_AddBoolToObject(root, "cart_loaded", false);
 #if CONFIG_PRG32_DISPLAY_QEMU_RGB
     cJSON_AddBoolToObject(root, "qemu", true);
 #else
@@ -50,7 +53,12 @@ static esp_err_t send_runtime(httpd_req_t *req) {
         add_json_u32(cart, "code_size", info.code_size);
         add_json_u32(cart, "mem_size", info.mem_size);
         add_json_u32(cart, "generation", info.generation);
+        cJSON_AddBoolToObject(root, "cart_loaded", info.loaded != 0);
     }
+
+    cJSON *diag = cJSON_AddObjectToObject(root, "diag");
+    add_json_u32(diag, "frame_count", prg32_diag_frame_count());
+    add_json_u32(diag, "input_state", prg32_diag_input_state());
 
     cJSON *imports = cJSON_AddObjectToObject(root, "imports");
     add_import(imports, "prg32_ticks_ms", (uintptr_t)prg32_ticks_ms);
@@ -127,7 +135,13 @@ static esp_err_t post_game(httpd_req_t *req) {
 #if PRG32_GAME_UPLOAD_ENABLE
     if (req->content_len <= 0 ||
         (size_t)req->content_len > PRG32_CART_RAM_SIZE + sizeof(prg32_cart_header_t)) {
-        httpd_resp_send_err(req, 400, "invalid cartridge size");
+        char msg[96];
+        snprintf(msg,
+                 sizeof(msg),
+                 "invalid cartridge size %d (max %lu)",
+                 req->content_len,
+                 (unsigned long)(PRG32_CART_RAM_SIZE + sizeof(prg32_cart_header_t)));
+        httpd_resp_send_err(req, 400, msg);
         return ESP_FAIL;
     }
     uint8_t *body = malloc((size_t)req->content_len);

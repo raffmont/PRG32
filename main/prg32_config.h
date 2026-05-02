@@ -22,6 +22,10 @@
 
 #define PRG32_DEFAULT_MODE PRG32_MODE_UART_LCD_MIRROR
 
+#ifndef PRG32_DEBUG
+#define PRG32_DEBUG 0
+#endif
+
 #if CONFIG_PRG32_DISPLAY_QEMU_RGB
 /* QEMU screen builds do not touch physical board pins. */
 #define PRG32_PIN_LCD_MOSI   -1

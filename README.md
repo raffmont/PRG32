@@ -1,107 +1,149 @@
 # PRG32
 
-PRG32 is a teaching platform for first-year RISC-V assembly labs based on ESP32-C6.
-Students write assembly games against a small C ABI (`components/prg32/include/prg32.h`) and run them on:
+PRG32 is an educational runtime for RISC-V assembly games.
 
-- ESP32-C6 + ILI9341 TFT (physical board)
-- Espressif QEMU graphics mode (desktop, ESP32-C3 target)
-
-## What Is In This Repo
-
-- `components/prg32`: PRG32 runtime API (display, input, audio, cartridge loader, optional Wi-Fi HTTP API)
-- `main`: default firmware app (resident runtime + cartridge loop)
-- `examples/games`: assembly demos (`ascii/game.S` and `graphics/game.S`)
-- `tools/prg32_game.py`: cartridge build/upload/staging tool (`.prg32`)
-- `tools/prg32_score_server`: optional Flask + SQLite score backend
-- `docs`: tutorial, labs, API/manual, QEMU and cartridge workflows
-
-## Requirements
-
-- ESP-IDF 5.3+ in shell (`idf.py` available)
-- RISC-V toolchain from ESP-IDF (`riscv32-esp-elf-*`)
-- Python 3.9+ for helper tools
-- For QEMU graphics: `qemu-riscv32` installed via IDF tools
-
-## Build And Run (Hardware)
+## 🚀 Quick Start (macOS)
 
 ```bash
-idf.py set-target esp32c6
-idf.py build
-idf.py flash monitor
-```
+# 1) Dependencies
+brew install git cmake ninja dfu-util ccache libusb python
 
-Default app behavior:
+# 2) ESP-IDF
+cd $HOME
+git clone -b v5.3 --recursive https://github.com/espressif/esp-idf.git
+cd esp-idf
+./install.sh esp32c3,esp32c6
+. ./export.sh
 
-- prints `PRG32 Hello World`
-- starts resident runtime
-- runs stored cartridge if one exists
+# 3) Project
+cd /path/to/PRG32
 
-## Build And Run (QEMU)
-
-```bash
+# 4) Build QEMU firmware
 idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
+idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu build
+
+# 5) Run QEMU once (creates build-qemu/qemu_flash.bin)
 idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
 ```
 
-Shortcut scripts:
-
-- macOS/Linux: `tools/qemu.sh`
-- Windows PowerShell: `tools/qemu.ps1`
-
-## Run Demo Games
-
-There are two supported flows.
-
-1. Cartridge flow (recommended):
+Open a second terminal (source ESP-IDF again), then stage a demo cartridge:
 
 ```bash
+cd /path/to/PRG32
+. $HOME/esp-idf/export.sh
 python3 tools/prg32_game.py build \
   examples/games/asteroids/graphics/game.S \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-qemu/PRG32.elf \
   --entry-prefix asteroids_graphics \
   --name asteroids \
-  --out build/asteroids.prg32
+  --out build-qemu/asteroids.prg32
+python3 tools/prg32_game.py upload-qemu build-qemu/asteroids.prg32 --flash build-qemu/qemu_flash.bin
 ```
 
-Hardware upload:
+Run everything with one command next time:
 
 ```bash
-python3 tools/prg32_game.py upload build/asteroids.prg32 --url http://192.168.4.1
+./scripts/run_qemu_demo.sh
 ```
 
-QEMU staging:
+## 🍏 macOS Setup (Tested on Apple Silicon)
 
 ```bash
-python3 tools/prg32_game.py upload-qemu build/asteroids.prg32 --flash build-qemu/qemu_flash.bin
+brew install git cmake ninja dfu-util ccache libusb python
+cd $HOME
+git clone -b v5.3 --recursive https://github.com/espressif/esp-idf.git
+cd esp-idf
+./install.sh esp32c3,esp32c6
+. ./export.sh
 ```
 
-2. Lab flow (compile game into app):
-- Add one example `game.S` in `main/CMakeLists.txt`
-- Call its `<name>_init`, `<name>_update`, `<name>_draw` from `main/main.c`
+Quality-of-life alias:
 
-## Network Defaults (Physical Cartridge Upload)
+```bash
+alias get_idf=". $HOME/esp-idf/export.sh"
+```
+
+Common pitfalls:
+
+- New shell opened: run `get_idf` again.
+- `idf.py` missing: ESP-IDF not sourced.
+- `riscv32-esp-elf-gcc` missing: ESP-IDF toolchain not installed/sourced.
+
+## 🧠 How PRG32 works
+
+- PRG32 is **not** a CPU instruction emulator.
+- Code runs natively on ESP32-C6 hardware, or on Espressif QEMU firmware target (ESP32-C3) for desktop graphics/testing.
+- Games are distributed as cartridges (`.prg32`) loaded by the runtime.
+
+Flow:
 
 ```text
-SSID: PRG32
-Password: prg32game
-URL: http://192.168.4.1
+.S source -> riscv toolchain -> .prg32 cartridge -> PRG32 runtime -> init/update/draw loop
 ```
 
-## Documentation Map
+## ❗ Troubleshooting
 
-- `docs/tutorial.md`: end-to-end student tutorial
-- `docs/framework_manual.md`: ABI and framework behavior
-- `docs/cartridges.md`: flash-once cartridge workflow
-- `docs/qemu.md`: QEMU setup and troubleshooting
-- `docs/score_api.md`: score endpoints and client flow
-- `docs/external_controllers.md`: UART controller bridge protocol
-- `docs/labs`: classroom lab sequence and debugging exercises
+| Problem | Cause | Fix |
+|---|---|---|
+| `idf.py: command not found` | ESP-IDF environment not sourced | Run `. $HOME/esp-idf/export.sh` |
+| QEMU runs but game does not move | QEMU defaults disable physical GPIO buttons; no UART bridge input | Use a UART bridge packet source, or verify logic with debug overlay/GDB |
+| Cartridge upload fails | Missing/invalid `build-qemu/qemu_flash.bin` or oversized cartridge | Run QEMU once to create flash file, then rerun `upload-qemu`; check cartridge size |
+| `riscv32-esp-elf-gcc` missing | Toolchain not in PATH | Re-run `./install.sh esp32c3,esp32c6` and source export script |
+| Partition mismatch errors | Cartridge staged using wrong partition layout/slot | Use `tools/prg32_game.py doctor` and verify `partitions_prg32.csv` + slot |
+
+## Runtime APIs
+
+- Runtime/diagnostics: `GET /api/runtime`
+- Games: `GET /api/games`, `POST /api/games`, `POST /api/games/select`
+- Optional scores: `GET /api/scores`, `POST /api/scores`
+
+`/api/runtime` includes firmware version, cartridge state, frame count, and last input state.
+
+## Developer Tools
+
+- Doctor check:
+
+```bash
+python3 tools/prg32_game.py doctor
+```
+
+- One-shot QEMU demo:
+
+```bash
+./scripts/run_qemu_demo.sh
+```
+
+## 🧪 Smoke Test
+
+This script verifies the basic PRG32 workflow end to end: environment setup,
+firmware build, cartridge build, and QEMU staging.
+
+```bash
+./scripts/smoke_test.sh
+```
+
+Expected result:
+
+- all steps print `[OK]`
+- warnings may appear but are non-blocking
+- final output shows `=== SMOKE TEST PASSED ===`
 
 ## Screenshots
 
-Place screenshots in `docs/images/` (create if missing) and reference them here:
+Place images under `docs/images/`.
 
-- `docs/images/prg32-qemu-hello-world.png`
-- `docs/images/prg32-asteroids-graphics.png`
-- `docs/images/prg32-runtime-api-response.png`
-- `docs/images/prg32-cartridge-upload-ok.png`
+Suggested files:
+
+- `docs/images/prg32-qemu-game.png`
+- `docs/images/prg32-upload-success.png`
+- `docs/images/prg32-runtime-api.png`
+
+See `docs/images/README.md` for capture instructions.
+
+## Repo Map
+
+- `components/prg32`: runtime implementation
+- `main`: default firmware app
+- `examples/games`: assembly demos
+- `tools/prg32_game.py`: cartridge tooling
+- `docs`: tutorials, labs, API docs

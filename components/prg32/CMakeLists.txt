@@ -27,6 +27,7 @@ idf_component_register(
         "prg32_console.c"
         "prg32_controller.c"
         "prg32_debug_overlay.c"
+        "prg32_diag.c"
         "prg32_http_games.c"
         "prg32_http_scores.c"
         ${PRG32_DISPLAY_SRC}
