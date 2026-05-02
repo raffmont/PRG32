@@ -26,8 +26,9 @@ CART_HEADER = struct.Struct("<4sHHHHIIIIIII32s")
 CART_MAGIC = b"PRG2"
 CART_ABI_MAJOR = 1
 CART_ABI_MINOR = 0
-CART_FLASH_OFFSET = 0x210000
-CART_FLASH_SIZE = 512 * 1024
+DEFAULT_PARTITION_TABLE = ROOT / "partitions_prg32.csv"
+DEFAULT_CART_SLOT = "cart0"
+FALLBACK_CART_RAM_SIZE = 32 * 1024
 
 IMPORT_NAMES = [
     "prg32_ticks_ms",
@@ -43,6 +44,7 @@ IMPORT_NAMES = [
     "prg32_gfx_pixel",
     "prg32_gfx_rect",
     "prg32_gfx_text8",
+    "prg32_debug_overlay_draw",
     "prg32_tile_clear",
     "prg32_tile_define",
     "prg32_tile_put",
@@ -94,16 +96,83 @@ def parse_nm(text: str) -> dict[str, int]:
     return symbols
 
 
+def parse_nm_sizes(text: str) -> dict[str, int]:
+    symbols: dict[str, int] = {}
+    for line in text.splitlines():
+        parts = line.split()
+        if len(parts) >= 4:
+            name = parts[-1]
+            try:
+                size = int(parts[1], 16)
+            except ValueError:
+                continue
+            symbols[name] = size
+    return symbols
+
+
+def parse_partition_size(token: str) -> int:
+    text = token.strip().lower()
+    if not text:
+        raise ValueError("empty partition size")
+    mult = 1
+    if text.endswith("k"):
+        mult = 1024
+        text = text[:-1]
+    elif text.endswith("m"):
+        mult = 1024 * 1024
+        text = text[:-1]
+    base = 16 if text.startswith("0x") else 10
+    return int(text, base) * mult
+
+
+def read_partition_slot(path: Path, slot: str) -> tuple[int, int]:
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError as exc:
+        raise SystemExit(f"failed to read partition table {path}: {exc}") from exc
+
+    for raw in lines:
+        line = raw.split("#", 1)[0].strip()
+        if not line:
+            continue
+        cols = [c.strip() for c in line.split(",")]
+        if len(cols) < 5:
+            continue
+        if cols[0] != slot:
+            continue
+        try:
+            offset = parse_partition_size(cols[3])
+            size = parse_partition_size(cols[4])
+        except ValueError as exc:
+            raise SystemExit(
+                f"invalid partition values for {slot} in {path}: {exc}"
+            ) from exc
+        return (offset, size)
+
+    raise SystemExit(f"partition slot '{slot}' not found in {path}")
+
+
 def runtime_from_elf(path: Path, tool_prefix: str) -> dict:
     nm = parse_nm(run([tool_prefix + "nm", "-g", "--defined-only", str(path)]))
     if "prg32_cart_exec" not in nm:
         raise SystemExit("firmware ELF does not export prg32_cart_exec")
+    size_nm = parse_nm_sizes(
+        run([tool_prefix + "nm", "-S", "-g", "--defined-only", str(path)])
+    )
     missing = [name for name in IMPORT_NAMES if name not in nm]
     if missing:
         raise SystemExit("firmware ELF is missing imports: " + ", ".join(missing))
+    ram_size = size_nm.get("prg32_cart_exec")
+    if not ram_size:
+        ram_size = FALLBACK_CART_RAM_SIZE
+        print(
+            "warning: could not infer prg32_cart_exec size from ELF symbols; "
+            f"using fallback cart RAM size {ram_size} bytes",
+            file=sys.stderr,
+        )
     return {
         "cart_load_addr": nm["prg32_cart_exec"],
-        "cart_ram_size": 32 * 1024,
+        "cart_ram_size": ram_size,
         "imports": {name: nm[name] for name in IMPORT_NAMES},
     }
 
@@ -196,7 +265,13 @@ def build(args: argparse.Namespace) -> None:
         raise SystemExit("build requires --runtime-url or --firmware-elf")
 
     load_addr = int(runtime["cart_load_addr"])
-    ram_size = int(runtime.get("cart_ram_size", 32 * 1024))
+    if "cart_ram_size" not in runtime:
+        print(
+            "warning: runtime did not report cart_ram_size; "
+            f"using fallback {FALLBACK_CART_RAM_SIZE} bytes",
+            file=sys.stderr,
+        )
+    ram_size = int(runtime.get("cart_ram_size", FALLBACK_CART_RAM_SIZE))
     imports = {k: int(v) for k, v in runtime["imports"].items()}
 
     source = Path(args.source)
@@ -304,20 +379,31 @@ def upload(args: argparse.Namespace) -> None:
 def upload_qemu(args: argparse.Namespace) -> None:
     flash = Path(args.flash)
     data = Path(args.cartridge).read_bytes()
-    if len(data) > CART_FLASH_SIZE:
-        raise SystemExit(f"cartridge is larger than cart0 ({CART_FLASH_SIZE} bytes)")
+    partitions = Path(args.partitions)
+    cart_offset, cart_size = read_partition_slot(partitions, args.slot)
+    if len(data) > cart_size:
+        raise SystemExit(
+            f"cartridge is larger than {args.slot} ({cart_size} bytes from {partitions})"
+        )
     if not flash.exists():
         raise SystemExit(f"QEMU flash image not found: {flash}")
     with flash.open("r+b") as f:
         f.seek(0, os.SEEK_END)
         size = f.tell()
-        if size < CART_FLASH_OFFSET + CART_FLASH_SIZE:
-            raise SystemExit("QEMU flash image is smaller than the PRG32 cart0 offset")
-        f.seek(CART_FLASH_OFFSET)
-        f.write(b"\xff" * CART_FLASH_SIZE)
-        f.seek(CART_FLASH_OFFSET)
+        required = cart_offset + cart_size
+        if size < required:
+            raise SystemExit(
+                "QEMU flash image is smaller than "
+                f"{args.slot} requirements ({required} bytes needed)"
+            )
+        f.seek(cart_offset)
+        f.write(b"\xff" * cart_size)
+        f.seek(cart_offset)
         f.write(data)
-    print(f"staged {args.cartridge} into {flash} at cart0")
+    print(
+        f"staged {args.cartridge} into {flash} at {args.slot} "
+        f"(offset=0x{cart_offset:06x}, size={cart_size})"
+    )
 
 
 def runtime(args: argparse.Namespace) -> None:
@@ -360,6 +446,8 @@ def main(argv: list[str]) -> int:
     p = sub.add_parser("upload-qemu", help="stage a cartridge into QEMU flash")
     p.add_argument("cartridge")
     p.add_argument("--flash", default="build-qemu/qemu_flash.bin")
+    p.add_argument("--partitions", default=str(DEFAULT_PARTITION_TABLE))
+    p.add_argument("--slot", default=DEFAULT_CART_SLOT)
     p.set_defaults(func=upload_qemu)
 
     args = parser.parse_args(argv)
