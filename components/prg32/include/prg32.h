@@ -113,6 +113,11 @@ void prg32_gfx_present(void);
 void prg32_gfx_pixel(int x, int y, uint16_t color);
 void prg32_gfx_rect(int x, int y, int w, int h, uint16_t color);
 void prg32_gfx_text8(int x, int y, const char *s, uint16_t fg, uint16_t bg);
+void prg32_debug_overlay_draw(int enabled,
+                              int x,
+                              int y,
+                              uint32_t input_mask,
+                              uint32_t frame);
 
 void prg32_tile_clear(uint16_t color);
 void prg32_tile_define(uint8_t id, const uint8_t *bitmap8x8, uint16_t fg, uint16_t bg);

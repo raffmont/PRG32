@@ -3,7 +3,8 @@
 This update adds two optional services to PRG32:
 
 1. `prg32_controller.c`: merges local GPIO buttons with external controller events.
-2. `prg32_wifi_scores.c`: exposes a small HTTP API for game/player/score records.
+2. `prg32_wifi.c`, `prg32_http_scores.c`, and `prg32_http_games.c`: expose a
+   small Wi-Fi + HTTP API for game upload/runtime info and score records.
 
 ## New C functions
 
