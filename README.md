@@ -175,6 +175,10 @@ Start with:
 See [docs/audio.md](docs/audio.md) for wiring, API, cartridge AUDIO blocks, and
 troubleshooting.
 
+The resident firmware also shows a logo splash screen on boot. When the audio
+configuration is usable for the current board, it plays a short welcome sound;
+otherwise it falls back to the passive buzzer when configured.
+
 ## Example Games
 
 The `examples/games` directory includes ASCII assembly, graphics assembly, and

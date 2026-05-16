@@ -48,4 +48,12 @@ config PRG32_SPLASH_DURATION_MS
         How long the firmware startup splash remains visible before runtime
         initialization continues.
 
+config PRG32_SPLASH_SOUND_ENABLED
+    bool "Play welcome sound during startup splash"
+    depends on PRG32_SPLASH_ENABLED
+    default y
+    help
+        When the PRG32 I2S audio subsystem is enabled, initialize it and play a
+        short welcome tone sequence while the firmware splash is visible.
+
 endmenu

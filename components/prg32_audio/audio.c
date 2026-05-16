@@ -102,7 +102,7 @@ bool prg32_audio_init(const prg32_audio_config_t *config) {
                 NULL,
                 tskIDLE_PRIORITY + 2,
                 &g_prg32_audio.task);
-    return true;
+    return g_prg32_audio.i2s_ready;
 #endif
 }
 

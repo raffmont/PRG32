@@ -8,9 +8,9 @@ void prg32_abi_exports_keep(void);
 
 void prg32_init(void) {
     prg32_display_init();
+    prg32_audio_pwm_init();
     prg32_splash_show_default();
     prg32_input_init();
-    prg32_audio_pwm_init();
     prg32_abi_exports_keep();
     prg32_cart_init();
     if (prg32_wifi_setup_requested()) {

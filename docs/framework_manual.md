@@ -87,11 +87,17 @@ tests focused on rendering and GDB exercises.
 
 ## Splash Screens
 
-The resident firmware shows a short PRG32 splash after display initialization.
+The resident firmware shows the PRG32 logo image after display initialization.
 It can be disabled or timed through Kconfig:
 
 - `CONFIG_PRG32_SPLASH_ENABLED`
 - `CONFIG_PRG32_SPLASH_DURATION_MS`
+- `CONFIG_PRG32_SPLASH_SOUND_ENABLED`
+
+When splash sound is enabled, firmware plays a short welcome phrase through the
+I2S audio subsystem only when the configured audio pins do not conflict with the
+reference display/input wiring. Otherwise it uses the passive buzzer when one
+is configured.
 
 Graphic games can reuse the same helper API:
 
