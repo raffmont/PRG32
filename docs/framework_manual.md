@@ -78,7 +78,7 @@ Display backend selection:
 Use the QEMU defaults file when running on a desktop:
 
 ```bash
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
 ```
 
 When the QEMU backend is selected, `main/prg32_config.h` disables physical GPIO
@@ -140,9 +140,14 @@ PRG32 supports three Wi-Fi runtime modes:
 - `PRG32_WIFI_MODE_AP`: create the PRG32 access point.
 - `PRG32_WIFI_MODE_APSTA`: keep the upload AP while also connecting as station.
 
-The setup GPIO is `PRG32_PIN_SETUP`. Hold it low during boot to enter setup
-mode. The setup screen lets the user choose access-point mode or station mode,
-then uses the joystick keyboard for SSID and password input.
+The resident ESP32-C6 firmware enters setup mode after the startup splash by
+default when Wi-Fi is enabled. The setup screen lets the user choose
+access-point mode or station mode, then uses the joystick keyboard for SSID and
+password input.
+
+This boot behavior is controlled by `PRG32_BOOT_SETUP_MODE` in
+`main/prg32_config.h`. If it is disabled for a custom build, the setup GPIO
+`PRG32_PIN_SETUP` can still be held low during boot to force setup mode.
 
 Useful calls:
 

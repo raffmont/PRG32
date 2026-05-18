@@ -71,12 +71,14 @@ In `main/prg32_config.h`:
 #define PRG32_CONTROLLER_BRIDGE_ENABLE 1
 #define PRG32_CONTROLLER_BRIDGE_UART 1
 #define PRG32_CONTROLLER_BRIDGE_BAUD 115200
-#define PRG32_PIN_CONTROLLER_TX 18
-#define PRG32_PIN_CONTROLLER_RX 19
+#define PRG32_PIN_CONTROLLER_TX 16
+#define PRG32_PIN_CONTROLLER_RX 17
 ```
 
 The function `prg32_input_read()` merges GPIO buttons and the bridge state, so
 local arcade buttons and external USB controllers can be used at the same time.
+The bridge is disabled in the default physical joystick build to avoid a
+floating UART RX pin in student wiring; enable it only when a bridge is wired.
 
 ## Teaching note
 

@@ -136,16 +136,16 @@ and add `../examples/games/platformer/graphics/game.S` to `SRCS`.
 ### 3. Build for the Physical ESP32-C6 Board
 
 ```bash
-idf.py set-target esp32c6
-idf.py build
-idf.py flash monitor
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults set-target esp32c6
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults build
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults flash monitor
 ```
 
 ### 4. Or Build for QEMU Graphics Testing
 
 ```bash
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
 ```
 
 QEMU shows the graphics viewport in a desktop window. Final input, sound, Wi-Fi,
@@ -173,9 +173,9 @@ once.
 ### 1. Build and Flash the Resident Firmware
 
 ```bash
-idf.py set-target esp32c6
-idf.py build
-idf.py flash monitor
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults set-target esp32c6
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults build
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults flash monitor
 ```
 
 The board starts the `PRG32` Wi-Fi access point by default for cartridge uploads.
@@ -185,10 +185,10 @@ The board starts the `PRG32` Wi-Fi access point by default for cartridge uploads
 ```bash
 python3 tools/prg32_game.py build \
   examples/games/tetris/ascii/game.S \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix tetris_ascii \
   --name tetris-ascii \
-  --out build/tetris-ascii.prg32
+  --out build-esp32c6/tetris-ascii.prg32
 ```
 
 ### 3. Build a Graphics Cartridge
@@ -196,10 +196,10 @@ python3 tools/prg32_game.py build \
 ```bash
 python3 tools/prg32_game.py build \
   examples/games/tetris/graphics/game.S \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix tetris_graphics \
   --name tetris-graphics \
-  --out build/tetris-graphics.prg32
+  --out build-esp32c6/tetris-graphics.prg32
 ```
 
 ### 3b. Build a C Cartridge
@@ -207,10 +207,10 @@ python3 tools/prg32_game.py build \
 ```bash
 python3 tools/prg32_game.py build \
   examples/games/platformer/c/game.c \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix platformer_c \
   --name platformer-c \
-  --out build/platformer-c.prg32
+  --out build-esp32c6/platformer-c.prg32
 ```
 
 ### 4. Upload a Cartridge to the Board
@@ -219,13 +219,13 @@ Connect the computer to the `PRG32` Wi-Fi network, then upload:
 
 ```bash
 python3 tools/prg32_game.py upload \
-  build/tetris-graphics.prg32 \
+  build-esp32c6/tetris-graphics.prg32 \
   --url http://192.168.4.1
 ```
 
 To upload the ASCII version, replace the cartridge path with
-`build/tetris-ascii.prg32`. To upload the C version, use
-`build/platformer-c.prg32`.
+`build-esp32c6/tetris-ascii.prg32`. To upload the C version, use
+`build-esp32c6/platformer-c.prg32`.
 
 ## Run as an Uploadable Cartridge in QEMU
 
@@ -235,14 +235,14 @@ cartridge directly into the emulator flash image.
 ### 1. Build QEMU Firmware
 
 ```bash
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu build
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu build
 ```
 
 ### 2. Run QEMU Once to Create the Flash Image
 
 ```bash
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
 ```
 
 Stop QEMU after the first successful launch. This creates
@@ -276,7 +276,7 @@ python3 tools/prg32_game.py upload-qemu \
 ### 5. Run QEMU Again
 
 ```bash
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
 ```
 
 The resident firmware loads the staged cartridge from the QEMU flash image.

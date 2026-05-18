@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 QEMU_BUILD_DIR="build-qemu"
+QEMU_SDKCONFIG="$QEMU_BUILD_DIR/sdkconfig"
 QEMU_DEFAULTS="sdkconfig.defaults.qemu"
 DEMO_SOURCE="examples/games/asteroids/graphics/game.S"
 DEMO_PREFIX="asteroids_graphics"
@@ -35,10 +36,10 @@ fi
 cd "$ROOT_DIR"
 
 info "Configuring QEMU target (esp32c3)"
-idf.py -B "$QEMU_BUILD_DIR" -D "SDKCONFIG_DEFAULTS=$QEMU_DEFAULTS" set-target esp32c3
+idf.py -B "$QEMU_BUILD_DIR" -D "SDKCONFIG=$QEMU_SDKCONFIG" -D "SDKCONFIG_DEFAULTS=$QEMU_DEFAULTS" set-target esp32c3
 
 info "Building QEMU firmware"
-idf.py -B "$QEMU_BUILD_DIR" -D "SDKCONFIG_DEFAULTS=$QEMU_DEFAULTS" build
+idf.py -B "$QEMU_BUILD_DIR" -D "SDKCONFIG=$QEMU_SDKCONFIG" -D "SDKCONFIG_DEFAULTS=$QEMU_DEFAULTS" build
 
 if [[ ! -f "$QEMU_BUILD_DIR/PRG32.elf" ]]; then
   fail "Missing $QEMU_BUILD_DIR/PRG32.elf after build"
@@ -60,4 +61,4 @@ info "Staging demo cartridge into QEMU flash"
 python3 tools/prg32_game.py upload-qemu "$DEMO_CART" --flash "$DEMO_FLASH"
 
 info "Starting QEMU screen"
-exec idf.py -B "$QEMU_BUILD_DIR" -D "SDKCONFIG_DEFAULTS=$QEMU_DEFAULTS" qemu --graphics monitor
+exec idf.py -B "$QEMU_BUILD_DIR" -D "SDKCONFIG=$QEMU_SDKCONFIG" -D "SDKCONFIG_DEFAULTS=$QEMU_DEFAULTS" qemu --graphics monitor

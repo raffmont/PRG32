@@ -14,8 +14,8 @@ Wire both MAX98357A boards to the same BCLK, LRCLK, and DATA lines. Configure
 one board for left-channel output and the other for right-channel output.
 
 ```bash
-idf.py set-target esp32c6
-idf.py build flash monitor
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults set-target esp32c6
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults build flash monitor
 ```
 
 Checkpoint: the serial monitor labels match the speaker that plays. If left and

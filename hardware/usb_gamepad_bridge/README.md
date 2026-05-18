@@ -12,8 +12,8 @@ USB gamepad -> USB-host bridge -> UART -> ESP32-C6 PRG32 board
 | Bridge pin | ESP32-C6 pin | Notes |
 |---|---|---|
 | GND | GND | Common reference |
-| TX | GPIO19 / controller RX | Bridge sends packets to C6 |
-| RX | GPIO18 / controller TX | Optional for configuration |
+| TX | GPIO17 / controller RX | Bridge sends packets to C6 |
+| RX | GPIO16 / controller TX | Optional for configuration |
 | 3V3 | 3V3 | Only if current budget is safe |
 
 Use a powered USB-host bridge when using controllers with LEDs, rumble, or high

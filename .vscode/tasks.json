@@ -5,21 +5,50 @@
       "label": "PRG32: set target esp32c6",
       "type": "shell",
       "command": "idf.py",
-      "args": ["set-target", "esp32c6"],
+      "args": [
+        "-B",
+        "build-esp32c6",
+        "-D",
+        "SDKCONFIG=build-esp32c6/sdkconfig",
+        "-D",
+        "SDKCONFIG_DEFAULTS=sdkconfig.defaults",
+        "set-target",
+        "esp32c6"
+      ],
       "problemMatcher": []
     },
     {
       "label": "PRG32: menuconfig",
       "type": "shell",
       "command": "idf.py",
-      "args": ["menuconfig"],
+      "args": [
+        "-B",
+        "build-esp32c6",
+        "-D",
+        "SDKCONFIG=build-esp32c6/sdkconfig",
+        "-D",
+        "SDKCONFIG_DEFAULTS=sdkconfig.defaults",
+        "-D",
+        "IDF_TARGET=esp32c6",
+        "menuconfig"
+      ],
       "problemMatcher": []
     },
     {
       "label": "PRG32: build",
       "type": "shell",
       "command": "idf.py",
-      "args": ["build"],
+      "args": [
+        "-B",
+        "build-esp32c6",
+        "-D",
+        "SDKCONFIG=build-esp32c6/sdkconfig",
+        "-D",
+        "SDKCONFIG_DEFAULTS=sdkconfig.defaults",
+        "-D",
+        "IDF_TARGET=esp32c6",
+        "build"
+      ],
       "group": "build",
       "problemMatcher": []
     },
@@ -27,7 +56,18 @@
       "label": "PRG32: flash monitor",
       "type": "shell",
       "command": "idf.py",
-      "args": ["flash", "monitor"],
+      "args": [
+        "-B",
+        "build-esp32c6",
+        "-D",
+        "SDKCONFIG=build-esp32c6/sdkconfig",
+        "-D",
+        "SDKCONFIG_DEFAULTS=sdkconfig.defaults",
+        "-D",
+        "IDF_TARGET=esp32c6",
+        "flash",
+        "monitor"
+      ],
       "problemMatcher": []
     },
     {
@@ -37,6 +77,8 @@
       "args": [
         "-B",
         "build-qemu",
+        "-D",
+        "SDKCONFIG=build-qemu/sdkconfig",
         "-D",
         "SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu",
         "set-target",
@@ -51,6 +93,8 @@
       "args": [
         "-B",
         "build-qemu",
+        "-D",
+        "SDKCONFIG=build-qemu/sdkconfig",
         "-D",
         "SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu",
         "-D",
@@ -68,6 +112,8 @@
         "-B",
         "build-qemu",
         "-D",
+        "SDKCONFIG=build-qemu/sdkconfig",
+        "-D",
         "SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu",
         "-D",
         "IDF_TARGET=esp32c3",
@@ -84,6 +130,8 @@
       "args": [
         "-B",
         "build-qemu",
+        "-D",
+        "SDKCONFIG=build-qemu/sdkconfig",
         "-D",
         "SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu",
         "-D",
@@ -103,6 +151,8 @@
         "-B",
         "build-qemu",
         "-D",
+        "SDKCONFIG=build-qemu/sdkconfig",
+        "-D",
         "SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu",
         "-D",
         "IDF_TARGET=esp32c3",
@@ -114,7 +164,17 @@
       "label": "PRG32: clean",
       "type": "shell",
       "command": "idf.py",
-      "args": ["fullclean"],
+      "args": [
+        "-B",
+        "build-esp32c6",
+        "-D",
+        "SDKCONFIG=build-esp32c6/sdkconfig",
+        "-D",
+        "SDKCONFIG_DEFAULTS=sdkconfig.defaults",
+        "-D",
+        "IDF_TARGET=esp32c6",
+        "fullclean"
+      ],
       "problemMatcher": []
     },
     {
@@ -193,7 +253,7 @@
       "id": "prg32FirmwareElf",
       "type": "promptString",
       "description": "Resident firmware ELF",
-      "default": "build/PRG32.elf"
+      "default": "build-esp32c6/PRG32.elf"
     },
     {
       "id": "prg32EntryPrefix",
@@ -211,7 +271,7 @@
       "id": "prg32CartOut",
       "type": "promptString",
       "description": "Hardware cartridge output",
-      "default": "build/asteroids.prg32"
+      "default": "build-esp32c6/asteroids.prg32"
     },
     {
       "id": "prg32QemuCartOut",

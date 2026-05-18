@@ -95,10 +95,10 @@ Commands include `NOTE_ON`, `NOTE_OFF`, `SET_VOLUME`, `SET_PAN`, `SET_TEMPO`,
 python3 tools/wav2prg32sample.py input.wav --rate 22050 --out build/input.raw
 python3 tools/prg32audio_pack.py audio.json --out build/audio.block
 python3 tools/prg32_game.py build game.S \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix mygame \
   --audio-block build/audio.block \
-  --out build/mygame.prg32
+  --out build-esp32c6/mygame.prg32
 ```
 
 The firmware loads AUDIO assets before calling the cartridge init function, so

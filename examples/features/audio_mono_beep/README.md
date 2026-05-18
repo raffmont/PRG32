@@ -11,8 +11,8 @@ square-wave sample. No cartridge audio assets are required.
 3. Build and flash:
 
 ```bash
-idf.py set-target esp32c6
-idf.py build flash monitor
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults set-target esp32c6
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults build flash monitor
 ```
 
 Checkpoint: one speaker plays a short beep, then the display keeps refreshing.

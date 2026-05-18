@@ -26,12 +26,16 @@ cd esp-idf
 # 3) Project
 cd /path/to/PRG32
 
-# 4) Build QEMU firmware
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu build
+# 4) Build and flash physical ESP32-C6 firmware
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults set-target esp32c6
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults flash monitor
 
-# 5) Run QEMU once (creates build-qemu/qemu_flash.bin)
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+# 5) Build QEMU firmware
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu build
+
+# 6) Run QEMU once (creates build-qemu/qemu_flash.bin)
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
 ```
 
 Open a second terminal (source ESP-IDF again), then stage a demo cartridge:
@@ -92,6 +96,10 @@ pio run -t upload
 pio device monitor -b 115200
 ```
 
+The ESP32-C6 build keeps UART0 as the primary ESP-IDF console and enables
+native USB Serial/JTAG as secondary output for PlatformIO Monitor. A healthy
+boot logs the configured `prg32_lcd` ILI9341 pins before drawing the splash.
+
 The PlatformIO environment is for the physical ESP32-C6 classroom board. Keep
 using the `idf.py` commands in `docs/qemu.md` for QEMU screen builds.
 
@@ -116,6 +124,21 @@ Flow:
 
 - `idf.py: command not found`: ESP-IDF is not sourced. Run
   `. $HOME/esp-idf/export.sh`.
+- Black display on real ESP32-C6 hardware: rebuild with the physical build
+  directory, not the QEMU one:
+  `idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults set-target esp32c6`
+  then
+  `idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults flash monitor`.
+  The monitor should log `prg32_lcd` with the configured ILI9341 pins.
+- PlatformIO Monitor shows only ROM boot text or only its header: the firmware
+  was probably built with an older generated `sdkconfig.prg32-esp32c6`, or the
+  USB monitor missed secondary-console output during reset. Delete that
+  generated file once, rebuild, upload, open Monitor again, and press RESET/EN
+  on the board. A healthy app boot logs `PRG32 boot: app_main entered` and the
+  configured `prg32_lcd` pins.
+- PlatformIO says it cannot exclusively lock `/dev/cu.usbmodem...`: close every
+  other Serial Monitor, ESP-IDF Monitor, Arduino Serial Monitor, and terminal
+  using that port, then start only one PlatformIO Monitor.
 - QEMU runs but the game does not move: QEMU defaults disable physical GPIO
   buttons. Use a UART bridge packet source, or debug logic with the overlay/GDB.
 - Cartridge upload fails: `build-qemu/qemu_flash.bin` is missing/invalid, or the
@@ -175,9 +198,11 @@ Start with:
 See [docs/audio.md](docs/audio.md) for wiring, API, cartridge AUDIO blocks, and
 troubleshooting.
 
-The resident firmware also shows a logo splash screen on boot. When the audio
-configuration is usable for the current board, it plays a short welcome sound;
-otherwise it falls back to the passive buzzer when configured.
+The resident firmware also shows a logo splash screen on boot. Physical
+ESP32-C6 builds then enter Wi-Fi setup mode so students can choose the PRG32
+upload access point or connect the board to an existing network. When the audio
+configuration is usable for the current board, the splash plays a short welcome
+sound; otherwise it falls back to the passive buzzer when configured.
 
 ## Example Games
 

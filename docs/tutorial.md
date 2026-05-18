@@ -14,18 +14,29 @@ thing, and explain what changed.
 ## 2. Build the Base App
 
 Run the VS Code task `PRG32: set target esp32c6`, then run `PRG32: build`.
+These tasks use the dedicated `build-esp32c6` directory and
+`sdkconfig.defaults`, so they keep the real ILI9341 board build separate from
+QEMU.
 
-Flash with `PRG32: flash monitor`. The monitor should show:
+Flash with `PRG32: flash monitor`. On the physical ESP32-C6 board, the monitor
+shows `app_main()` entering before the LCD SPI driver starts. If USB
+secondary-console output is visible, the monitor also shows:
 
 ```text
+PRG32 boot: app_main entered
+I (...) prg32_main: starting PRG32 runtime
+I (...) prg32_lcd: ILI9341 SPI2 MOSI=7 MISO=2 SCLK=6 CS=10 DC=8 RST=9 BL=5 ...
+I (...) prg32_lcd: ILI9341 initialization complete
 PRG32 Hello World
 ```
 
 Checkpoint:
 
 - The firmware builds without errors.
+- The monitor logs the configured ILI9341 pins.
 - The board shows the PRG32 Hello World message.
-- The serial monitor prints boot logs and the app message.
+- The serial monitor prints boot logs and the app message when USB
+  secondary-console output is visible.
 
 To run without hardware, use the QEMU tasks instead:
 
@@ -160,16 +171,16 @@ After the resident firmware has been flashed once, build the game as a cartridge
 ```bash
 python3 tools/prg32_game.py build \
   examples/games/pong/graphics/game.S \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix pong_graphics \
   --name pong \
-  --out build/pong.prg32
+  --out build-esp32c6/pong.prg32
 ```
 
 Connect to the `PRG32` Wi-Fi network, then upload:
 
 ```bash
-python3 tools/prg32_game.py upload build/pong.prg32 --url http://192.168.4.1
+python3 tools/prg32_game.py upload build-esp32c6/pong.prg32 --url http://192.168.4.1
 ```
 
 Use `docs/cartridges.md` for the full workflow.

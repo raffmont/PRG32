@@ -100,16 +100,16 @@ void app_main(void) {
 Build for hardware:
 
 ```bash
-idf.py set-target esp32c6
-idf.py build
-idf.py flash monitor
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults set-target esp32c6
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults build
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults flash monitor
 ```
 
 Or build for QEMU:
 
 ```bash
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
 ```
 
 Restore the default `main/CMakeLists.txt` and `main/main.c` after the lab.
@@ -121,16 +121,16 @@ After the resident firmware is built, package the same C source as a cartridge:
 ```bash
 python3 tools/prg32_game.py build \
   examples/games/pong/c/game.c \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix pong_c \
   --name pong-c \
-  --out build/pong-c.prg32
+  --out build-esp32c6/pong-c.prg32
 ```
 
 Upload to the board:
 
 ```bash
-python3 tools/prg32_game.py upload build/pong-c.prg32 --url http://192.168.4.1
+python3 tools/prg32_game.py upload build-esp32c6/pong-c.prg32 --url http://192.168.4.1
 ```
 
 For QEMU, build against `build-qemu/PRG32.elf` and stage with `upload-qemu`.

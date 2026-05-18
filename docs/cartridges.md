@@ -52,9 +52,9 @@ This partition table is selected by `sdkconfig.defaults` and
 Flash the resident firmware one time:
 
 ```bash
-idf.py set-target esp32c6
-idf.py build
-idf.py flash monitor
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults set-target esp32c6
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults build
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults flash monitor
 ```
 
 The default physical build starts a small Wi-Fi access point:
@@ -71,16 +71,16 @@ ELF from the local build to obtain the runtime addresses:
 ```bash
 python3 tools/prg32_game.py build \
   examples/games/asteroids/graphics/game.S \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix asteroids_graphics \
   --name asteroids \
-  --out build/asteroids.prg32
+  --out build-esp32c6/asteroids.prg32
 ```
 
 Upload it to the board:
 
 ```bash
-python3 tools/prg32_game.py upload build/asteroids.prg32 --url http://192.168.4.1
+python3 tools/prg32_game.py upload build-esp32c6/asteroids.prg32 --url http://192.168.4.1
 ```
 
 The firmware stores the cartridge in `cart0` and starts running it from the main
@@ -97,7 +97,7 @@ python3 tools/prg32_game.py build \
   --runtime-url http://192.168.4.1 \
   --entry-prefix asteroids_graphics \
   --name asteroids \
-  --out build/asteroids.prg32
+  --out build-esp32c6/asteroids.prg32
 ```
 
 Useful runtime endpoint:
@@ -111,8 +111,8 @@ curl http://192.168.4.1/api/runtime
 Build the resident QEMU firmware:
 
 ```bash
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu build
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu build
 ```
 
 Build a cartridge against the QEMU firmware ELF:
@@ -140,7 +140,7 @@ the flash image, quit QEMU, and run the staging command again.
 Then start QEMU:
 
 ```bash
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
 ```
 
 QEMU does not emulate the classroom Wi-Fi upload path. Instead, it uses the same
@@ -224,10 +224,10 @@ them as small freestanding C modules:
 ```bash
 python3 tools/prg32_game.py build \
   examples/games/platformer/c/game.c \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix platformer_c \
   --name platformer-c \
-  --out build/platformer-c.prg32
+  --out build-esp32c6/platformer-c.prg32
 ```
 
 Keep C cartridges small and avoid standard-library calls. Use the helpers in
@@ -251,11 +251,11 @@ Attach it to a cartridge:
 ```bash
 python3 tools/prg32_game.py build \
   examples/games/asteroids/graphics/game.S \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix asteroids_graphics \
   --audio-block build/audio.block \
   --name asteroids-audio \
-  --out build/asteroids-audio.prg32
+  --out build-esp32c6/asteroids-audio.prg32
 ```
 
 The firmware loads the AUDIO block before calling `<game>_init`, so a cartridge

@@ -163,11 +163,13 @@ static int prg32_splash_prepare_sound(void) {
 #endif
 }
 
+#if !CONFIG_PRG32_SPLASH_SOUND_ENABLED || PRG32_PIN_BUZZER < 0
 static void prg32_splash_play_wait(uint32_t duration_ms) {
     if (duration_ms > 0) {
         vTaskDelay(pdMS_TO_TICKS(duration_ms));
     }
 }
+#endif
 
 static void prg32_splash_play_pwm_welcome(uint32_t duration_ms) {
 #if PRG32_PIN_BUZZER >= 0

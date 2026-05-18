@@ -12,8 +12,8 @@ as instrument 0, and a short event list plays a repeating three-note melody.
 ## Run
 
 ```bash
-idf.py set-target esp32c6
-idf.py build flash monitor
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults set-target esp32c6
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults build flash monitor
 ```
 
 Checkpoint: the melody loops while the main task keeps refreshing the display.

@@ -63,6 +63,7 @@
 #define PRG32_PIN_P2_START   -1
 #define PRG32_PIN_SETUP      -1
 #define PRG32_PIN_BUZZER     -1
+#define PRG32_BOOT_DIAGNOSTIC_DELAY_MS 0
 
 #define PRG32_CONTROLLER_BRIDGE_ENABLE 0
 #define PRG32_CONTROLLER_BRIDGE_UART 1
@@ -72,24 +73,35 @@
 
 #define PRG32_GAME_UPLOAD_ENABLE 0
 #else
-/* Reference ESP32-C6 pins for the physical ILI9341 build. */
-#define PRG32_PIN_LCD_MOSI   6
-#define PRG32_PIN_LCD_MISO   7
-#define PRG32_PIN_LCD_SCLK   5
+/*
+ * ESP32-C6 breadboard wiring for the physical ILI9341 build.
+ * These pins match the classroom display harness tested with Arduino/Adafruit.
+ */
+#define PRG32_PIN_LCD_MOSI   7
+#define PRG32_PIN_LCD_MISO   2
+#define PRG32_PIN_LCD_SCLK   6
 #define PRG32_PIN_LCD_CS     10
-#define PRG32_PIN_LCD_DC     11
-#define PRG32_PIN_LCD_RST    12
-#define PRG32_PIN_LCD_BL     13
+#define PRG32_PIN_LCD_DC     8
+#define PRG32_PIN_LCD_RST    9
+#define PRG32_PIN_LCD_BL     5
 
-#define PRG32_PIN_BTN_LEFT   0
-#define PRG32_PIN_BTN_RIGHT  1
-#define PRG32_PIN_BTN_UP     2
-#define PRG32_PIN_BTN_DOWN   3
-#define PRG32_PIN_BTN_A      4
-#define PRG32_PIN_BTN_B      8
-/* Optional START button pin; set to -1 when not wired. */
-#define PRG32_PIN_BTN_START  -1
-#define PRG32_PIN_SETUP      14
+#define PRG32_LCD_SPI_CLOCK_HZ 10000000
+#define PRG32_LCD_BACKLIGHT_ACTIVE_LEVEL 1
+#define PRG32_LCD_BOOT_TEST_MS 0
+#define PRG32_LCD_SOFT_SPI 0
+#define PRG32_BOOT_SIGNAL_ENABLE 0
+#define PRG32_BOOT_DIAGNOSTIC_DELAY_MS 0
+
+#define PRG32_PIN_BTN_UP     4
+#define PRG32_PIN_BTN_DOWN   13
+#define PRG32_PIN_BTN_LEFT   18
+#define PRG32_PIN_BTN_RIGHT  19
+#define PRG32_PIN_BTN_START  14
+#define PRG32_PIN_BTN_A      21
+#define PRG32_PIN_BTN_B      22
+
+#define PRG32_PIN_SETUP      -1
+
 /* Optional second digital joystick. Leave pins at -1 when not mounted. */
 #define PRG32_PIN_P2_LEFT    -1
 #define PRG32_PIN_P2_RIGHT   -1
@@ -98,14 +110,14 @@
 #define PRG32_PIN_P2_A       -1
 #define PRG32_PIN_P2_B       -1
 #define PRG32_PIN_P2_START   -1
-#define PRG32_PIN_BUZZER     9
+#define PRG32_PIN_BUZZER     15
 
 /* Optional USB-controller support via an external USB HID host bridge. */
-#define PRG32_CONTROLLER_BRIDGE_ENABLE 1
+#define PRG32_CONTROLLER_BRIDGE_ENABLE 0
 #define PRG32_CONTROLLER_BRIDGE_UART 1
 #define PRG32_CONTROLLER_BRIDGE_BAUD 115200
-#define PRG32_PIN_CONTROLLER_TX 18
-#define PRG32_PIN_CONTROLLER_RX 19
+#define PRG32_PIN_CONTROLLER_TX 16
+#define PRG32_PIN_CONTROLLER_RX 17
 #endif
 
 /*
@@ -125,10 +137,12 @@
 #define PRG32_WIFI_SSID "YOUR_WIFI_SSID"
 #define PRG32_WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
 #define PRG32_SCORE_MAX 16
+#define PRG32_IDLE_HEARTBEAT_MS 5000
 
 #define PRG32_WIFI_STA_ENABLE PRG32_WIFI_SCORES_ENABLE
 #define PRG32_WIFI_AP_ENABLE PRG32_GAME_UPLOAD_ENABLE
 #define PRG32_WIFI_ENABLE (PRG32_WIFI_STA_ENABLE || PRG32_WIFI_AP_ENABLE)
+#define PRG32_BOOT_SETUP_MODE PRG32_WIFI_ENABLE
 #define PRG32_WIFI_AP_SSID "PRG32"
 #define PRG32_WIFI_AP_PASSWORD "prg32game"
 #define PRG32_WIFI_AP_CHANNEL 6

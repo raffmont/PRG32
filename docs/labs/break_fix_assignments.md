@@ -68,8 +68,9 @@ build only with `idf.py qemu --graphics monitor`.
 
 ## Assignment 8 - Cartridge Linked for the Wrong Firmware
 
-Break it: build a `.prg32` cartridge using an old `build/PRG32.elf`, then flash a
-new resident firmware and upload the old cartridge.
+Break it: build a `.prg32` cartridge using an old
+`build-esp32c6/PRG32.elf`, then flash a new resident firmware and upload the old
+cartridge.
 
 Symptoms: `/api/games` rejects the upload with a runtime-address error, or the
 game does not start.

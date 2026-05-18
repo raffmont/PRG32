@@ -2,6 +2,9 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+QEMU_BUILD_DIR="build-qemu"
+QEMU_SDKCONFIG="$QEMU_BUILD_DIR/sdkconfig"
+QEMU_DEFAULTS="sdkconfig.defaults.qemu"
 cd "$ROOT_DIR"
 
 ok() {
@@ -42,26 +45,26 @@ run_step() {
 run_step "doctor" python3 tools/prg32_game.py doctor
 
 run_step "set-target-esp32c3" \
-  idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
+  idf.py -B "$QEMU_BUILD_DIR" -D "SDKCONFIG=$QEMU_SDKCONFIG" -D "SDKCONFIG_DEFAULTS=$QEMU_DEFAULTS" set-target esp32c3
 
 run_step "build-firmware" \
-  idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu build
+  idf.py -B "$QEMU_BUILD_DIR" -D "SDKCONFIG=$QEMU_SDKCONFIG" -D "SDKCONFIG_DEFAULTS=$QEMU_DEFAULTS" build
 
-if [[ ! -f build-qemu/PRG32.elf ]]; then
-  fail "build-firmware (missing build-qemu/PRG32.elf)"
+if [[ ! -f "$QEMU_BUILD_DIR/PRG32.elf" ]]; then
+  fail "build-firmware (missing $QEMU_BUILD_DIR/PRG32.elf)"
 fi
 ok "firmware-artifact"
 
 run_step "build-demo-cartridge" \
   python3 tools/prg32_game.py build \
     examples/games/pong/graphics/game.S \
-    --firmware-elf build-qemu/PRG32.elf \
+    --firmware-elf "$QEMU_BUILD_DIR/PRG32.elf" \
     --entry-prefix pong_graphics \
     --name pong \
-    --out build-qemu/pong.prg32
+    --out "$QEMU_BUILD_DIR/pong.prg32"
 
-if [[ ! -f build-qemu/pong.prg32 ]]; then
-  fail "build-demo-cartridge (missing build-qemu/pong.prg32)"
+if [[ ! -f "$QEMU_BUILD_DIR/pong.prg32" ]]; then
+  fail "build-demo-cartridge (missing $QEMU_BUILD_DIR/pong.prg32)"
 fi
 ok "cartridge-artifact"
 
@@ -73,6 +76,7 @@ import sys
 cmd = [
     "idf.py",
     "-B", "build-qemu",
+    "-D", "SDKCONFIG=build-qemu/sdkconfig",
     "-D", "SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu",
     "qemu",
     "--graphics",
@@ -99,15 +103,15 @@ else
   warn "qemu-launch-check failed (non-blocking)"
 fi
 
-if [[ ! -f build-qemu/qemu_flash.bin ]]; then
-  fail "qemu-flash-image missing (run: idf.py -B build-qemu qemu --graphics monitor once)"
+if [[ ! -f "$QEMU_BUILD_DIR/qemu_flash.bin" ]]; then
+  fail "qemu-flash-image missing (run QEMU once with build-qemu/sdkconfig)"
 fi
 ok "qemu-flash-image"
 
 run_step "stage-cartridge-qemu" \
   python3 tools/prg32_game.py upload-qemu \
-    build-qemu/pong.prg32 \
-    --flash build-qemu/qemu_flash.bin
+    "$QEMU_BUILD_DIR/pong.prg32" \
+    --flash "$QEMU_BUILD_DIR/qemu_flash.bin"
 
 ok "smoke-test-complete"
 echo "=== SMOKE TEST PASSED ==="

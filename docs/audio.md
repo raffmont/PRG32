@@ -113,9 +113,11 @@ Default PRG32 audio Kconfig pins:
 | GPIO7 | SD, optional |
 | GND or default | GAIN |
 
-The current breadboard display and joystick reference also use some low GPIO
-numbers. For a combined display, joystick, and audio build, trainers should
-choose non-conflicting GPIOs in menuconfig or in the example configuration.
+The current ESP32-C6 breadboard display reference uses GPIO5, GPIO6, and GPIO7
+for LCD BL, SCLK, and MOSI. With that wiring, the startup splash deliberately
+skips I2S audio unless trainers choose non-conflicting audio GPIOs in
+menuconfig or in the example configuration. The passive buzzer fallback remains
+available when `PRG32_PIN_BUZZER` is wired.
 
 Stereo wiring shares the same I2S signals:
 
@@ -217,10 +219,10 @@ Pack assets:
 ```bash
 python3 tools/prg32audio_pack.py audio.json --out build/audio.block
 python3 tools/prg32_game.py build examples/games/asteroids/graphics/game.S \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix asteroids_graphics \
   --audio-block build/audio.block \
-  --out build/asteroids-audio.prg32
+  --out build-esp32c6/asteroids-audio.prg32
 ```
 
 ## Samples

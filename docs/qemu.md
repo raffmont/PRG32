@@ -69,8 +69,8 @@ Use a separate build directory so the physical board configuration and the QEMU
 configuration do not overwrite each other.
 
 ```bash
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
 ```
 
 The second command builds the firmware if needed, starts QEMU, opens the virtual
@@ -147,14 +147,14 @@ Example games stay outside the default app. To test one in QEMU, wire it into
 then run:
 
 ```bash
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
 ```
 
 The same source can later be built for the physical board:
 
 ```bash
-idf.py build
-idf.py flash monitor
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults build
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults flash monitor
 ```
 
 ## Input in QEMU
@@ -192,9 +192,15 @@ python $IDF_PATH/tools/idf_tools.py install qemu-riscv32
 If the virtual screen window does not appear, confirm that `--graphics` is in the
 command and that the host SDL2 libraries are installed.
 
-If a real board flash fails or crashes during display initialization, check that
-you did not use the `build-qemu` directory. The QEMU build targets ESP32-C3 and
-uses a virtual panel that does not exist on real PRG32 hardware.
+If a real board flash fails, crashes during display initialization, or shows a
+black display with no splash screen, check that you did not use the `build-qemu`
+directory. The QEMU build targets ESP32-C3 and uses a virtual panel that does
+not exist on real PRG32 hardware. For the ESP32-C6 board, rebuild with:
+
+```bash
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults set-target esp32c6
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults flash monitor
+```
 
 ## References
 

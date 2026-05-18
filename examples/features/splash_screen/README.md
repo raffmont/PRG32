@@ -43,8 +43,8 @@ For the C version, use `../examples/features/splash_screen/c/demo.c` and the
 Build:
 
 ```bash
-idf.py set-target esp32c6
-idf.py build flash monitor
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults set-target esp32c6
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults build flash monitor
 ```
 
 Checkpoint: the first splash pauses briefly, then the draw helper keeps a title
@@ -55,10 +55,10 @@ screen visible with a moving green bar.
 ```bash
 python3 tools/prg32_game.py build \
   examples/features/splash_screen/demo.S \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix splash_screen \
   --name splash-asm \
-  --out build/splash-asm.prg32
+  --out build-esp32c6/splash-asm.prg32
 ```
 
 For the C version:
@@ -66,8 +66,8 @@ For the C version:
 ```bash
 python3 tools/prg32_game.py build \
   examples/features/splash_screen/c/demo.c \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix splash_screen_c \
   --name splash-c \
-  --out build/splash-c.prg32
+  --out build-esp32c6/splash-c.prg32
 ```

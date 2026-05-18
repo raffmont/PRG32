@@ -84,10 +84,10 @@ For assembly lessons:
 ```bash
 python3 tools/prg32_game.py build \
   examples/games/platformer/graphics/game.S \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix platformer_graphics \
   --name platformer-asm \
-  --out build/platformer-asm.prg32
+  --out build-esp32c6/platformer-asm.prg32
 ```
 
 For C lessons:
@@ -95,16 +95,16 @@ For C lessons:
 ```bash
 python3 tools/prg32_game.py build \
   examples/games/platformer/c/game.c \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix platformer_c \
   --name platformer-c \
-  --out build/platformer-c.prg32
+  --out build-esp32c6/platformer-c.prg32
 ```
 
 Upload either cartridge with:
 
 ```bash
-python3 tools/prg32_game.py upload build/platformer-c.prg32 --url http://192.168.4.1
+python3 tools/prg32_game.py upload build-esp32c6/platformer-c.prg32 --url http://192.168.4.1
 ```
 
 For QEMU, build against `build-qemu/PRG32.elf` and use `upload-qemu`.

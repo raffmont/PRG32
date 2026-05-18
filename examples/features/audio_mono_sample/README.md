@@ -16,8 +16,8 @@ cartridge AUDIO block.
 ## Run Embedded In Firmware
 
 ```bash
-idf.py set-target esp32c6
-idf.py build flash monitor
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults set-target esp32c6
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults build flash monitor
 ```
 
 Checkpoint: the mono speaker repeats a short click. If there is no sound, run

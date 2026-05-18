@@ -2,7 +2,6 @@
 #include "prg32_config.h"
 #include <stdio.h>
 #include <string.h>
-#include "driver/uart.h"
 
 static uint32_t g_mode = PRG32_DEFAULT_MODE;
 static char g_text[PRG32_TEXT_ROWS][PRG32_TEXT_COLS];
@@ -53,8 +52,7 @@ void prg32_console_clear(void) {
 
 void prg32_console_putc(int ch) {
     if (g_mode == PRG32_MODE_UART_ONLY || g_mode == PRG32_MODE_UART_LCD_MIRROR) {
-        char c = (char)ch;
-        uart_write_bytes(UART_NUM_0, &c, 1);
+        fputc(ch, stdout);
     }
     if (g_mode == PRG32_MODE_UART_ONLY) return;
     if (ch == '\r') { g_cx = 0; return; }

@@ -80,16 +80,16 @@ Use either the assembly symbols or the C symbols in `app_main`, not both.
 Build for hardware:
 
 ```bash
-idf.py set-target esp32c6
-idf.py build
-idf.py flash monitor
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults set-target esp32c6
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults build
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults flash monitor
 ```
 
 Or build for QEMU:
 
 ```bash
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
 ```
 
 Restore the default `main/CMakeLists.txt` and `main/main.c` before committing.
@@ -102,10 +102,10 @@ prefix:
 ```bash
 python3 tools/prg32_game.py build \
   examples/features/animated_sprites/demo.S \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix animated_sprites \
   --name animated-sprites \
-  --out build/animated-sprites.prg32
+  --out build-esp32c6/animated-sprites.prg32
 ```
 
 For the C version:
@@ -113,17 +113,17 @@ For the C version:
 ```bash
 python3 tools/prg32_game.py build \
   examples/features/animated_sprites/c/demo.c \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix animated_sprites_c \
   --name animated-sprites-c \
-  --out build/animated-sprites-c.prg32
+  --out build-esp32c6/animated-sprites-c.prg32
 ```
 
 Upload to hardware:
 
 ```bash
 python3 tools/prg32_game.py upload \
-  build/animated-sprites.prg32 \
+  build-esp32c6/animated-sprites.prg32 \
   --url http://192.168.4.1
 ```
 

@@ -8,6 +8,7 @@ GAME_TOOL="tools/prg32_game.py"
 QEMU_IMAGE="$BUILD_DIR/flash_image.bin"
 QEMU_EFUSE="$BUILD_DIR/qemu_efuse.bin"
 QEMU_ELF="$BUILD_DIR/PRG32.elf"
+SDKCONFIG="$BUILD_DIR/sdkconfig"
 SDKCONFIG_DEFAULTS="sdkconfig.defaults.qemu"
 FLASH_SIZE=$((4 * 1024 * 1024))
 
@@ -152,8 +153,8 @@ ensure_qemu_firmware() {
   fi
 
   log_info "QEMU firmware missing; running initial build"
-  idf.py -B "$BUILD_DIR" -D "SDKCONFIG_DEFAULTS=$SDKCONFIG_DEFAULTS" set-target esp32c3
-  idf.py -B "$BUILD_DIR" build
+  idf.py -B "$BUILD_DIR" -D "SDKCONFIG=$SDKCONFIG" -D "SDKCONFIG_DEFAULTS=$SDKCONFIG_DEFAULTS" set-target esp32c3
+  idf.py -B "$BUILD_DIR" -D "SDKCONFIG=$SDKCONFIG" -D "SDKCONFIG_DEFAULTS=$SDKCONFIG_DEFAULTS" build
 
   [[ -f "$QEMU_ELF" ]] || die "Build finished but $QEMU_ELF is still missing."
   log_ok "QEMU firmware build complete"

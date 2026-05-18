@@ -44,21 +44,21 @@ CH559/CH554, or a PC-side serial helper during labs.
 |---|---|
 | 3V3 | TFT VCC |
 | GND | TFT GND |
-| GPIO6 | TFT MOSI |
-| GPIO7 | TFT MISO / touch DO |
-| GPIO5 | TFT SCLK |
+| GPIO7 | TFT MOSI |
+| GPIO2 | TFT MISO / touch DO |
+| GPIO6 | TFT SCLK |
 | GPIO10 | TFT CS |
-| GPIO11 | TFT DC |
-| GPIO12 | TFT RST |
-| GPIO13 | TFT BL |
-| GPIO0 | P1 joystick LEFT to GND |
-| GPIO1 | P1 joystick RIGHT to GND |
-| GPIO2 | P1 joystick UP to GND |
-| GPIO3 | P1 joystick DOWN to GND |
-| GPIO4 | P1 joystick SELECT/A to GND |
-| GPIO8 | P1 optional B/back button to GND |
-| GPIO14 | Setup button to GND |
-| GPIO9 | Passive buzzer |
+| GPIO8 | TFT DC |
+| GPIO9 | TFT RST |
+| GPIO5 | TFT BL |
+| GPIO18 | P1 joystick LEFT to GND |
+| GPIO19 | P1 joystick RIGHT to GND |
+| GPIO4 | P1 joystick UP to GND |
+| GPIO13 | P1 joystick DOWN to GND |
+| GPIO14 | P1 START to GND |
+| GPIO21 | P1 A / joystick select to GND |
+| GPIO22 | P1 B / back to GND |
+| GPIO15 | Passive buzzer |
 
 ## MAX98357A audio wiring
 

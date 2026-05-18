@@ -17,16 +17,26 @@ For desktop screen testing instead of real hardware:
 ## Build and flash
 
 ```bash
-idf.py set-target esp32c6
-idf.py build
-idf.py flash monitor
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults set-target esp32c6
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults build
+idf.py -B build-esp32c6 -D SDKCONFIG=build-esp32c6/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults flash monitor
 ```
+
+Use `build-esp32c6` for real boards. Do not flash a `build-qemu` image to
+hardware; that build targets ESP32-C3 and selects the virtual QEMU RGB panel.
+On a healthy physical build the serial monitor logs `prg32_lcd` with the
+ILI9341 pins before the splash screen is drawn.
 
 ## Default app
 
-The default firmware is a resident PRG32 runtime. With no cartridge installed it
-prints `PRG32 Hello World`. When a cartridge is uploaded, the same firmware loads
-the stored game from `cart0` and calls its `init`, `update`, and `draw` entries.
+The default firmware is a resident PRG32 runtime. On the physical ESP32-C6
+build it shows the splash screen and then enters Wi-Fi setup mode. Choose
+access-point mode for the standard cartridge upload workflow, or station mode
+when a lesson needs the board on an existing network.
+
+With no cartridge installed, the runtime prints `PRG32 Hello World` after setup
+completes. When a cartridge is uploaded, the same firmware loads the stored game
+from `cart0` and calls its `init`, `update`, and `draw` entries.
 
 ## Flash once, upload games
 
@@ -43,12 +53,12 @@ Build and upload a game:
 ```bash
 python3 tools/prg32_game.py build \
   examples/games/asteroids/graphics/game.S \
-  --firmware-elf build/PRG32.elf \
+  --firmware-elf build-esp32c6/PRG32.elf \
   --entry-prefix asteroids_graphics \
   --name asteroids \
-  --out build/asteroids.prg32
+  --out build-esp32c6/asteroids.prg32
 
-python3 tools/prg32_game.py upload build/asteroids.prg32 --url http://192.168.4.1
+python3 tools/prg32_game.py upload build-esp32c6/asteroids.prg32 --url http://192.168.4.1
 ```
 
 See `docs/cartridges.md`.
@@ -76,8 +86,8 @@ that is Espressif's documented RISC-V QEMU graphics target; PRG32 hardware
 deployment still targets ESP32-C6.
 
 ```bash
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
-idf.py -B build-qemu -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu set-target esp32c3
+idf.py -B build-qemu -D SDKCONFIG=build-qemu/sdkconfig -D SDKCONFIG_DEFAULTS=sdkconfig.defaults.qemu qemu --graphics monitor
 ```
 
 The QEMU build selects `CONFIG_PRG32_DISPLAY_QEMU_RGB` and renders the PRG32

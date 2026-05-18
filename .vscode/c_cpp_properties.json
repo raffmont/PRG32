@@ -166,6 +166,7 @@
                 "/Users/raffaelemontella/.platformio/packages/framework-espidf/components/rt/include",
                 "/Users/raffaelemontella/.platformio/packages/framework-espidf/components/spiffs/include",
                 "/Users/raffaelemontella/.platformio/packages/framework-espidf/components/wifi_provisioning/include",
+                "/Users/raffaelemontella/Documents/devel/PRG32/components/prg32_audio/include",
                 "/Users/raffaelemontella/Documents/devel/PRG32/components/prg32/include",
                 "/Users/raffaelemontella/Documents/devel/PRG32/main",
                 ""
@@ -331,6 +332,7 @@
                     "/Users/raffaelemontella/.platformio/packages/framework-espidf/components/rt/include",
                     "/Users/raffaelemontella/.platformio/packages/framework-espidf/components/spiffs/include",
                     "/Users/raffaelemontella/.platformio/packages/framework-espidf/components/wifi_provisioning/include",
+                    "/Users/raffaelemontella/Documents/devel/PRG32/components/prg32_audio/include",
                     "/Users/raffaelemontella/Documents/devel/PRG32/components/prg32/include",
                     "/Users/raffaelemontella/Documents/devel/PRG32/main",
                     ""
